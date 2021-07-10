@@ -27,44 +27,46 @@ class App(tk.Tk):
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.FPS = 20  #擷取影片頻率
     def Menu1(self):
+
         self.newWindow2 = tk.Toplevel(self)
-        self.newWindow2.geometry('1000x500')
-        radioValue = tk.IntVar() 
-        rdioOne = tk.Radiobutton(self.newWindow2, text='January',variable=radioValue, value=1) 
-        rdioTwo = tk.Radiobutton(self.newWindow2, text='Febuary',variable=radioValue, value=2) 
-        rdioThree = tk.Radiobutton(self.newWindow2, text='March',variable=radioValue, value=3)
-        self.panel = tk.Label(self.newWindow2)  # initialize image panel
-        self.panel.place(x=0,y=0)
-        rdioOne.place(x=650,y=10)
-        rdioTwo.place(x=650,y=30)
-        rdioThree.place(x=650,y=50)
-        labelValue = tk.Label(self.newWindow2, textvariable=radioValue)
-        labelValue.place(x=650,y=70)
-        self.dect_loop()
+        self.newWindow2.geometry('100x500')
+        BtnOne = tk.Button(self.newWindow2, text='A',width=10,command=self.dect_loop)
+        BtnTwo = tk.Button(self.newWindow2, text='B',width=10,command=self.dect_loop)
+        BtnThree = tk.Button(self.newWindow2, text='C',width=10,command=self.dect_loop)
+        BtnOne.place(x=0,y=10)
+        BtnTwo.place(x=0,y=50)
+        BtnThree.place(x=0,y=100)
+        labelValue = tk.Label(self.newWindow2, textvariable=1)
+        labelValue.place(x=0,y=150)
     def dect_loop(self):
-        success, img = self.camera.read()  # 从摄像头读取照片
-        if success:
-            cv2.waitKey(10)   
-            cv2image = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)#转换颜色从BGR到RGBA
-            current_image = Image.fromarray(cv2image)#将图像转换成Image对象
-            imgtk = ImageTk.PhotoImage(image=current_image)
-            self.panel.imgtk = imgtk
-            self.panel.config(image=imgtk)
-            if  self.prwrite_flag == 0 and self.write_flag == 1: # 寫入影格
-                self.prwrite_flag = 1
-                self.save_name = self.video_name + str(self.video_counter) + self.file_type
-                self.out = cv2.VideoWriter(self.save_name, self.fourcc, self.FPS, (self._CAMERA_WIDTH,self._CAMERA_HEIGH))
-                print('writing to ' + self.save_name)
-            elif self.write_flag == 0 and self.prwrite_flag == 1: #關閉影片   
-                self.prwrite_flag = 0
-                self.video_counter = self.video_counter + 1
-                print('finish')
-                self.ShowMessage.insert('end', str(self.save_name)+'檔案已儲存\n')
-            
-            if (self.write_flag == 1):
-               self.out.write(img)
-    
-        self.newWindow2.after(1, self.dect_loop)
+        self.write_flag = 0 
+        cap = cv2.VideoCapture(0)# 設定擷取影像的尺寸大小
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self._CAMERA_WIDTH)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self._CAMERA_HEIGH)
+        while(cap.isOpened()):
+            ret, frame = cap.read()
+            if ret == True:
+                if cv2.waitKey(10) & 0xFF == ord('r') and self.write_flag == 0: # 寫入影格
+                    write_flag = 1
+                    self.save_name = self.video_name + str(self.video_counter) + self.file_type
+                    global out2
+                    out2 = cv2.VideoWriter(self.save_name, self.fourcc, self.FPS, (self._CAMERA_WIDTH, self._CAMERA_HEIGH))
+                    print('writing to ' + self.save_name)
+                elif cv2.waitKey(10) & 0xFF == ord('t') and write_flag == 1: #關閉影片
+                    write_flag = 0
+                    self.video_counter = self.video_counter + 1
+                    print('finish')
+                elif cv2.waitKey(10) & 0xFF == ord('s'): # 釋放所有資源
+                    cap.release()
+                    out2.release()
+                    cv2.destroyAllWindows()
+                    break
+        
+                if (self.write_flag == 1):
+                    out2.write(frame)    
+                cv2.imshow('frame',frame)
+            else:
+                break
     def Menu2(self):
         self.newWindow = tk.Toplevel(self)
         self.newWindow.geometry('1000x500')
