@@ -40,7 +40,31 @@ class App(tk.Tk):
         rdioThree.place(x=650,y=50)
         labelValue = tk.Label(self.newWindow2, textvariable=radioValue)
         labelValue.place(x=650,y=70)
-        #self.video_loop()
+        self.dect_loop()
+    def dect_loop(self):
+        success, img = self.camera.read()  # 从摄像头读取照片
+        if success:
+            cv2.waitKey(10)   
+            cv2image = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)#转换颜色从BGR到RGBA
+            current_image = Image.fromarray(cv2image)#将图像转换成Image对象
+            imgtk = ImageTk.PhotoImage(image=current_image)
+            self.panel.imgtk = imgtk
+            self.panel.config(image=imgtk)
+            if  self.prwrite_flag == 0 and self.write_flag == 1: # 寫入影格
+                self.prwrite_flag = 1
+                self.save_name = self.video_name + str(self.video_counter) + self.file_type
+                self.out = cv2.VideoWriter(self.save_name, self.fourcc, self.FPS, (self._CAMERA_WIDTH,self._CAMERA_HEIGH))
+                print('writing to ' + self.save_name)
+            elif self.write_flag == 0 and self.prwrite_flag == 1: #關閉影片   
+                self.prwrite_flag = 0
+                self.video_counter = self.video_counter + 1
+                print('finish')
+                self.ShowMessage.insert('end', str(self.save_name)+'檔案已儲存\n')
+            
+            if (self.write_flag == 1):
+               self.out.write(img)
+    
+        self.newWindow2.after(1, self.dect_loop)
     def Menu2(self):
         self.newWindow = tk.Toplevel(self)
         self.newWindow.geometry('1000x500')
