@@ -16,6 +16,9 @@ def total():
         from matplotlib.figure import Figure
     except OSError as e:
         print(e)
+
+
+    
     serve=[]
     toss=[]
     squat=[]
@@ -220,9 +223,9 @@ def total():
     #try:
     
     #os.remove('output.png')
-#except OSError as e:
+    #except OSError as e:
     #print(e)
-
+    
     '''
     # 将绘制的图形显示到tkinter:创建属于root的canvas画布,并将图f置于画布上
     canvas = FigureCanvasTkAgg(f, master=root)
