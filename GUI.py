@@ -1,7 +1,8 @@
 from PIL import Image,ImageTk
 from threading import Timer
 import tkinter as tk
-from tkinter import Tk, Menu, filedialog
+from tkinter import Tk, Menu, filedialog,messagebox
+
 import cv2
 video_name = 'video_'
 file_type = '.avi'
@@ -56,6 +57,7 @@ def time():
     #newWindow3 = tk.Toplevel(window)
     #label = tk.Label(newWindow3,font=("Times", 30), text= '倒數5秒')
     #label.grid(column=0, row=0)
+    messagebox.showinfo("時間提醒", "倒數五秒")
     t = Timer(5.0, dect_loop()) 
     t.start()
 def Menu1():
@@ -133,6 +135,7 @@ def dect_loop():
     while(cap.isOpened()):
         cnt+=1
         if cnt==100:
+            messagebox.showinfo("時間提醒", "時間到")
             break
         ret, frame = cap.read()
         if ret == True:
