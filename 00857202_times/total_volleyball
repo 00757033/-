@@ -1,0 +1,375 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug  3 10:12:14 2021
+
+@author: User
+"""
+
+time_type1=""
+time_type2=""
+action=""
+data_type=""
+global end
+
+time_choose1=5
+time_choose2=5
+action_choose3=5
+data_choose=1
+
+try:
+        import time
+        import json
+        import base64
+        import matplotlib.pylab as plt
+        from PIL import Image
+        import cv2
+        import os
+        import tkinter as tk
+        import numpy as np
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+        from matplotlib.backend_bases import key_press_handler
+        from matplotlib.figure import Figure
+        #from tkinter import *
+        import tkinter.ttk as ttk
+        from threading import Thread
+except OSError as e:
+    print(e)
+
+def total_input():
+    timeset=set()
+    total=dict()
+    file = open("timestamp.txt", "r")
+    for line in file.readlines():
+        #base64_bytes = line.encode("ascii")
+        #sample_string_bytes = base64.b64decode(base64_bytes)
+        #sample_string = sample_string_bytes.decode("ascii")
+        dataset = json.loads(line)
+        if dataset["time"][0:4]  not in timeset:
+            timeset.add(dataset["time"][0:4])
+            total[dataset["time"][0:4]]=dict()
+
+        
+        #print(dataset['time'][0:int(end)])
+        #print(total[dataset["time"][0:int(end)]]['toss'])
+    file.close()
+    text=''
+    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end
+    serve=[]
+    toss=[]
+    squat=[] 
+    situp=[]
+    stick=[]
+    search_name=[]
+    search=[]
+    def plus():
+        if str(entry_action.get()) not in search_name :
+            if entry_action.get()=="toss":
+                search.append(toss)
+                search_name.append(str(entry_action.get()))
+                action_choose3=0
+                print(search)
+            if entry_action.get()=="serve":
+                search.append(serve)
+                search_name.append(str(entry_action.get()))
+                print(search)
+            if entry_action.get()=="棒式":
+                search.append(stick)
+                search_name.append(str(entry_action.get()))
+                print(search)
+            if entry_action.get()=="仰臥起坐":
+                search.append(situp)
+                search_name.append(str(entry_action.get()))
+                print(search)
+            if entry_action.get()=="棒式":
+                search.append(stick)
+                search_name.append(str(entry_action.get()))
+                print(search)
+    
+        
+    window_action = tk.Tk()
+    window_action.title("record")
+    window_action.geometry('500x500')
+    label_action = tk.Label(window_action, text = '動作')
+    label_action.pack()  
+    # 輸入欄位
+    entry_action = tk.Entry(window_action,     # 輸入欄位所在視窗
+                     width = 20) # 輸入欄位的寬度
+    entry_action.pack()
+    # 按鈕
+    button = tk.Button(window_action, text = "加入", command = plus)
+    button.pack()
+    
+    def update_date(i):
+        print(i)
+        if values[i]==0:
+            
+            time_choose1=0
+            print(time_choose1)
+            end=4
+            
+            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
+        if values[i]==1:
+            time_choose1=1
+            end=7
+            
+            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
+        if values[i]==2:
+            time_choose1=2
+            end=10
+            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
+        font = ('Courier New', 20, 'bold')    
+    def update_makeup(i):
+        print(i)
+        if values_makeup[i]==4:
+            data_choose=1
+            
+            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
+        if values_makeup[i]==5:
+            print("v_s5")
+            data_choose=0
+            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
+          
+         
+    
+  
+    texts_makeup = ['是', '否']
+    label_makeup = tk.Label(window_action,text='是否特定格式')
+    label_makeup.pack()
+    values_makeup = [4, 5]
+    select_makeup = tk.IntVar()
+    select_makeup.set(4)
+    widget_makeup = [None]*len(texts_makeup)
+    for i, (t, v) in enumerate(zip(texts_makeup, values_makeup)):
+        widget_makeup[i] = tk.Radiobutton(window_action,
+            text=t, value=v, variable=select_makeup,
+            command=lambda index=i: update_makeup(index))
+        widget_makeup[i].pack()#side=tk.LEFT
+
+    texts = ['年', '月', '日']
+    label_date = tk.Label(window_action,text='時間格式')
+    label_date.pack()
+    values = [0, 1, 2]
+    select = tk.IntVar()
+    select.set(0)
+    widget = [None]*len(texts)
+    for i, (t, v) in enumerate(zip(texts, values)):
+        if i==0:
+            widget[i] = tk.Radiobutton(window_action,
+                text=t, value=v, variable=select,
+                command=lambda index=i: [update_date(index),label_month_show(comboExample,label_month_Top)])
+        elif i==1:
+            widget[i] = tk.Radiobutton(window_action,
+                    text=t, value=v, variable=select,
+                    command=lambda index=i: [update_date(index),label_month_show(comboExample,label_month_Top)])
+       
+        
+        elif i==2:
+            widget[i] = tk.Radiobutton(window_action,
+                    text=t, value=v, variable=select,
+                    command=lambda index=i: [update_date(index),label_month_forget(comboExample,label_month_Top)])
+        widget[i].pack()
+        
+        '''
+    label_year_Top = ttk.Label(window_action,
+                                text = "選擇你想查詢的年份")
+    label_year_Top.pack()
+    
+    comboExample = ttk.Combobox(window_action, 
+                                values=timeset)
+
+    #print(dict(comboExample)) 
+    comboExample.pack()
+    comboExample.current(1)
+        
+        #print(comboExample.current(), comboExample.get())   
+        '''
+    timeset=list(timeset)#sort 失敗
+    strings = [str(integer) for integer in timeset]
+    a_string = "".join(strings)
+    an_integer = int(a_string)
+    #timeset=sorted(an_integer)
+    timeset.append("no")
+    label_month_Top = ttk.Label(window_action,
+                                    text = "Choose your  month")
+    label_month_Top.pack()
+    
+    comboExample = ttk.Combobox(window_action, 
+                                values=timeset)
+
+    #print(dict(comboExample)) 
+    comboExample.pack()
+    comboExample.current(1)
+    def label_month_show(widget,label):
+        label.pack()
+        widget.pack()
+    def label_month_forget(widget,label):
+        label.pack_forget()
+        widget.pack_forget()
+        
+        #print(comboExample.current(), comboExample.get())   
+        
+    
+
+    
+
+
+    
+    
+    
+    
+    ###確定
+    def sure():
+        """点击退出按钮时调用这个函数"""
+        window_action.quit()  # 结束主循环
+        #window.destroy()  # 销毁窗口
+    
+    
+    # 创建一个按钮,并把上面那个函数绑定过来
+    button0 = tk.Button(master=window_action, text="確定", command=sure)
+    # 按钮放在下边
+    button0.pack(side=tk.BOTTOM)
+    window_action.mainloop()
+    
+
+
+
+    
+                          
+def total():
+     #tkinter
+    root2 = tk.Tk()  # 创建tkinter的主窗口
+    root2.title("在tkinter中使用matplotlib")
+    f = Figure(figsize=(5, 4), dpi=100)
+    a = f.add_subplot(111)  # 添加子图:1行1列第1个
+    
+    print(end)
+    timeset=set()
+    total=dict()
+    file = open("timestamp.txt", "r")
+    for line in file.readlines():
+        #base64_bytes = line.encode("ascii")
+        #sample_string_bytes = base64.b64decode(base64_bytes)
+        #sample_string = sample_string_bytes.decode("ascii")
+        dataset = json.loads(line)
+        if dataset["time"][0:int(end)]  not in timeset:
+            timeset.add(dataset["time"][0:int(end)])
+            total[dataset["time"][0:int(end)]]=dict()
+            total[dataset["time"][0:int(end)]]['toss'] = 0
+            total[dataset["time"][0:int(end)]]['serve'] = 0
+            total[dataset["time"][0:int(end)]]['squat'] = 0
+            total[dataset["time"][0:int(end)]]['situp'] = 0
+            total[dataset["time"][0:int(end)]]['stick'] = 0
+        total[dataset["time"][0:int(end)]]['toss']+=dataset["action"]['toss']
+        total[dataset["time"][0:int(end)]]['serve']+=dataset["action"]['serve']
+        total[dataset["time"][0:int(end)]]['squat']+=dataset["action"]['squat']
+        total[dataset["time"][0:int(end)]]['situp']+=dataset["action"]['situp']
+        total[dataset["time"][0:int(end)]]['stick']+=dataset["action"]['stick']
+        
+        #print(dataset['time'][0:int(end)])
+        #print(total[dataset["time"][0:int(end)]]['toss'])
+    file.close()
+    
+    
+    print('search',search)
+    #print(data)
+    #dataset = json.loads(data)
+    #print(dataset)
+    time=[]
+    time1=[]
+    for i in total:
+        print(i)
+        #np.insert(time,-1,i)
+        time.append(i)
+        toss.append(total[i]['toss'])
+        serve.append(total[i]['serve'])
+        squat.append(total[i]['squat'])
+        situp.append(total[i]['situp'])
+        stick.append(total[i]['stick'])
+    width=0.15 
+    print('len(time)',len(time))
+    print('stick',stick)
+    print(toss)
+    #time= list(map(int,time))
+    print(time)
+    for i in range(len(time)):
+        time1.append(i+1)
+    x1=[p for p in time1]
+    x2=[p-width for p in time1]
+    x3=[p+ width for p in time1]
+    x4=[p -2* width for p in time1]
+    x5=[p + 2*width for p in time1]
+    color=['#E8837E','#EFB28C','#EED19C','#ACBA90','#749D9B']
+    x=[x1,x2,x3,x4,x5]
+    #plt.figure(0)
+    #tkinter
+    root2 = tk.Tk()  # 创建tkinter的主窗口
+    root2.title("在tkinter中使用matplotlib")
+    f = Figure(figsize=(5, 4), dpi=100)
+    a = f.add_subplot(111)  # 添加子图:1行1列第1个
+        
+   
+    for i in range(len(search)):
+        print(x[i]," ",search[i]," ",str(search[i])," ",color[i])
+        a.bar(x[i], search[i], label=str(search[i]),color=color[i], align = "edge", width = 0.15) #繪製長條圖
+    #a.bar(x1, toss, label='toss',color='#EFB28C', align = "edge", width = 0.15)  #繪製長條圖
+    #a.bar(x2, serve, label='serve',color='#EED19C', align = "edge", width = 0.15) #繪製長條圖
+    
+    #plt.bar(time[::1],toss[::1],color=(201/255,109/255,81/255),label="toss")
+    #plt.bar(time[::1],serve[::1],color=(70/255,140/255,156/255),label="serve")
+    a.set_title("Personal Training") # title
+    a.set_ylabel("count") # y label
+    a.set_xlabel("Day") # x label
+    
+    colors=dict()
+    for i in range(len(search)):
+        print(search_name[i])
+        color_temp={str(search_name[i]):color[i]}
+        colors.update(color_temp)
+    #colors = {'toss':'#FFC9DE', 'serve':'green','squat':'#FFC9DE', 'situp':'green','stick':'#FFC9DE'}         
+    labels = list(colors.keys())
+    #plt.legend(labels)
+    #plt.xticks([p+width for p in x1],time)
+    a.legend(labels)
+    a.set_xticks(time1)
+    a.set_xticklabels(time)
+
+    
+
+    # 将绘制的图形显示到tkinter:创建属于root的canvas画布,并将图f置于画布上
+    canvas = FigureCanvasTkAgg(f, master=root2)
+    canvas.draw()  # 注意show方法已经过时了,这里改用draw
+    canvas.get_tk_widget().pack(side=tk.TOP,  # 上对齐
+                                fill=tk.BOTH,  # 填充方式
+                                expand=tk.YES)  # 随窗口大小调整而调整
+    
+    # matplotlib的导航工具栏显示上来(默认是不会显示它的)
+    toolbar = NavigationToolbar2Tk(canvas, root2)
+    toolbar.update()
+    canvas._tkcanvas.pack(side=tk.TOP,  # get_tk_widget()得到的就是_tkcanvas
+                          fill=tk.BOTH,
+                          expand=tk.YES)
+    
+    
+    def on_key_event(event):
+        """键盘事件处理"""
+        print("你按了%s" % event.key)
+        key_press_handler(event, canvas, toolbar)
+    
+    
+    # 绑定上面定义的键盘事件处理函数
+    canvas.mpl_connect('key_press_event', on_key_event)
+    
+    
+    def _quit():
+        """点击退出按钮时调用这个函数"""
+        root2.quit()  # 结束主循环
+        root2.destroy()  # 销毁窗口
+    
+    
+    # 创建一个按钮,并把上面那个函数绑定过来
+    button = tk.Button(master=root2, text="退出", command=_quit)
+    # 按钮放在下边
+    button.pack(side=tk.BOTTOM)
+    
+    # 主循环
+    root2.mainloop()
