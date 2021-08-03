@@ -34,8 +34,12 @@ try:
         from threading import Thread
 except OSError as e:
     print(e)
-
+def total_start():
+    Thread(args=total_input()).start()
 def total_input():
+    #global 先設值在 查一下
+    #並且要每個def都使用
+    
     timeset=set()
     total=dict()
     file = open("timestamp.txt", "r")
@@ -53,21 +57,36 @@ def total_input():
         #print(total[dataset["time"][0:int(end)]]['toss'])
     file.close()
     text=''
-    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end
-    serve=[]
-    toss=[]
-    squat=[] 
-    situp=[]
-    stick=[]
-    search_name=[]
-    search=[]
+    
+    
     def plus():
+        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+
+        
+        serve=[]
+        toss=[]
+        squat=[] 
+        situp=[]
+        stick=[]
+        search_name=[]
+        search=[]
+        
+        time_choose1==0
+        time_choose2=0
+        time_type2=0
+        data_choose=0
+        end=4
+        file_name=''
+        when_month=10
+        when_year=2021
+
         if str(entry_action.get()) not in search_name :
             if entry_action.get()=="toss":
                 search.append(toss)
                 search_name.append(str(entry_action.get()))
                 action_choose3=0
                 print(search)
+                return search
             if entry_action.get()=="serve":
                 search.append(serve)
                 search_name.append(str(entry_action.get()))
@@ -76,20 +95,27 @@ def total_input():
                 search.append(stick)
                 search_name.append(str(entry_action.get()))
                 print(search)
+                return search
             if entry_action.get()=="仰臥起坐":
                 search.append(situp)
                 search_name.append(str(entry_action.get()))
                 print(search)
+                return search
             if entry_action.get()=="棒式":
                 search.append(stick)
                 search_name.append(str(entry_action.get()))
                 print(search)
-    
+                return search
+          
         
     window_action = tk.Tk()
     window_action.title("record")
+    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+
+
     window_action.geometry('500x500')
     label_action = tk.Label(window_action, text = '動作')
+    
     label_action.pack()  
     # 輸入欄位
     entry_action = tk.Entry(window_action,     # 輸入欄位所在視窗
@@ -100,44 +126,56 @@ def total_input():
     button.pack()
     
     def update_date(i):
+        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+
         print(i)
         if values[i]==0:
             
             time_choose1=0
             print(time_choose1)
             end=4
+            print(end)
+            return end
             
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
         if values[i]==1:
             time_choose1=1
             end=7
-            
+            return end
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
         if values[i]==2:
             time_choose1=2
+            #file_name='timestamp.txt'
             end=10
+            return end
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-        font = ('Courier New', 20, 'bold')    
-    def update_makeup(i):
-        print(i)
-        if values_makeup[i]==4:
-            data_choose=1
             
+    def update_makeup(i):
+        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+
+        print('update_makeup',i)
+        if values_makeup[i]==0:
+            
+            data_choose=1
+            file_name='timestamp.txt'
+            print('file_name',file_name)
+            return file_name
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-        if values_makeup[i]==5:
+        if values_makeup[i]==1:
             print("v_s5")
             data_choose=0
+            file_name='timestamp_file_no_makeup.txt'
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
           
-         
+            return file_name
     
-  
+    #print('file_name',file_name)
     texts_makeup = ['是', '否']
     label_makeup = tk.Label(window_action,text='是否特定格式')
     label_makeup.pack()
-    values_makeup = [4, 5]
+    values_makeup = [0, 1]
     select_makeup = tk.IntVar()
-    select_makeup.set(4)
+    select_makeup.set(1)
     widget_makeup = [None]*len(texts_makeup)
     for i, (t, v) in enumerate(zip(texts_makeup, values_makeup)):
         widget_makeup[i] = tk.Radiobutton(window_action,
@@ -174,14 +212,15 @@ def total_input():
     a_string = "".join(strings)
     an_integer = int(a_string)
     #timeset=sorted(an_integer)
-    timeset.append("no")
+    timeset.insert(0,"無")
     label_year_Top = ttk.Label(window_action,
                                 text = "選擇你想查詢的年份")
     label_year_Top.pack()
     
     comboExample_year = ttk.Combobox(window_action, 
                                 values=timeset)
-
+    
+    when_year=comboExample_year.get()
     #print(dict(comboExample)) 
     comboExample_year.pack()
     comboExample_year.current(1)
@@ -195,7 +234,7 @@ def total_input():
     
     comboExample = ttk.Combobox(window_action, 
                                 values=['無','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'])
-
+    when_year=int(comboExample.current())+1
     #print(dict(comboExample)) 
     comboExample.pack()
     comboExample.current(1)
@@ -214,14 +253,7 @@ def total_input():
         
         #print(comboExample.current(), comboExample.get())   
         
-    
 
-    
-
-
-    
-    
-    
     
     ###確定
     def sure():
@@ -235,23 +267,19 @@ def total_input():
     # 按钮放在下边
     button0.pack(side=tk.BOTTOM)
     window_action.mainloop()
-    
+    print("123",end)
+               
 
-
-
-    
-                          
-def total():
      #tkinter
     root2 = tk.Tk()  # 创建tkinter的主窗口
     root2.title("在tkinter中使用matplotlib")
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)  # 添加子图:1行1列第1个
-    
-    print(end)
+    print("1234",end)
+    #print(end)
     timeset=set()
     total=dict()
-    file = open("timestamp.txt", "r")
+    file = open(file_name, "r")
     for line in file.readlines():
         #base64_bytes = line.encode("ascii")
         #sample_string_bytes = base64.b64decode(base64_bytes)
@@ -283,14 +311,37 @@ def total():
     time=[]
     time1=[]
     for i in total:
-        print(i)
-        #np.insert(time,-1,i)
-        time.append(i)
-        toss.append(total[i]['toss'])
-        serve.append(total[i]['serve'])
-        squat.append(total[i]['squat'])
-        situp.append(total[i]['situp'])
-        stick.append(total[i]['stick'])
+        print(time_choose2," ",end," ",i)
+        if time_choose2==1 and end==4:
+            if i[0:4]==when_year:
+                print(i[0:4])
+                #np.insert(time,-1,i)
+                time.append(i)
+                toss.append(total[i]['toss'])
+                serve.append(total[i]['serve'])
+                squat.append(total[i]['squat'])
+                situp.append(total[i]['situp'])
+                stick.append(total[i]['stick'])
+        if time_choose2==1 and end==7:
+            if i[0:7]==when_year+'-'+when_month:
+                print(i)
+                #np.insert(time,-1,i)
+                time.append(i)
+                toss.append(total[i]['toss'])
+                serve.append(total[i]['serve'])
+                squat.append(total[i]['squat'])
+                situp.append(total[i]['situp'])
+                stick.append(total[i]['stick'])
+        elif time_choose2!=1:
+            print("here",i)
+            #np.insert(time,-1,i)
+            time.append(i)
+            toss.append(total[i]['toss'])
+            serve.append(total[i]['serve'])
+            squat.append(total[i]['squat'])
+            situp.append(total[i]['situp'])
+            stick.append(total[i]['stick'])
+        
     width=0.15 
     print('len(time)',len(time))
     print('stick',stick)
@@ -379,5 +430,3 @@ def total():
     
     # 主循环
     root2.mainloop()
-
-
