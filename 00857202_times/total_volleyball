@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 """
+8/04
+action 失敗 search一直歸[] google global maybe 換全部或多選
+time ok
+makeup ok
+special 讀取成功但後面程式未改 
+"""
+"""
 Created on Tue Aug  3 10:12:14 2021
 
 @author: User
-"""
+
 
 time_type1=""
 time_type2=""
@@ -15,6 +22,8 @@ time_choose1=5
 time_choose2=5
 action_choose3=5
 data_choose=1
+"""
+#此會在開chat就跑
 
 try:
         import time
@@ -35,11 +44,14 @@ try:
 except OSError as e:
     print(e)
 def total_start():
+    
+    #print("888",search)
     Thread(args=total_input()).start()
+    
 def total_input():
     #global 先設值在 查一下
     #並且要每個def都使用
-    
+
     timeset=set()
     total=dict()
     file = open("timestamp.txt", "r")
@@ -57,8 +69,9 @@ def total_input():
         #print(total[dataset["time"][0:int(end)]]['toss'])
     file.close()
     text=''
-    
-    
+    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+    search=[]
+    search_name=[]
     def plus():
         global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
 
@@ -68,49 +81,48 @@ def total_input():
         squat=[] 
         situp=[]
         stick=[]
-        search_name=[]
-        search=[]
         
-        time_choose1==0
+        
+        time_choose1=0
         time_choose2=0
         time_type2=0
-        data_choose=0
+        data_choose=1
         end=4
-        file_name=''
-        when_month=10
+        file_name='timestamp.txt'
+        when_month=1
         when_year=2021
 
         if str(entry_action.get()) not in search_name :
             if entry_action.get()=="toss":
                 search.append(toss)
-                search_name.append(str(entry_action.get()))
-                action_choose3=0
+                search_name.append('toss')
                 print(search)
-                return search
+                return search,search_name
             if entry_action.get()=="serve":
                 search.append(serve)
-                search_name.append(str(entry_action.get()))
+                search_name.append('serve')
                 print(search)
+                return search,search_name
             if entry_action.get()=="棒式":
                 search.append(stick)
-                search_name.append(str(entry_action.get()))
+                search_name.append('squat')
                 print(search)
-                return search
+                return search,search_name
             if entry_action.get()=="仰臥起坐":
                 search.append(situp)
-                search_name.append(str(entry_action.get()))
+                search_name.append('situp')
                 print(search)
-                return search
+                return search,search_name
             if entry_action.get()=="棒式":
                 search.append(stick)
-                search_name.append(str(entry_action.get()))
+                search_name.append('stick')
                 print(search)
-                return search
+                return search,search_name
           
         
     window_action = tk.Tk()
     window_action.title("record")
-    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+    
 
 
     window_action.geometry('500x500')
@@ -220,11 +232,12 @@ def total_input():
     comboExample_year = ttk.Combobox(window_action, 
                                 values=timeset)
     
-    when_year=comboExample_year.get()
+    
     #print(dict(comboExample)) 
     comboExample_year.pack()
     comboExample_year.current(1)
-        
+    when_year=comboExample_year.get()
+    print(when_year) 
         #print(comboExample.current(), comboExample.get())   
     
     
@@ -232,21 +245,29 @@ def total_input():
                                     text = "Choose your  month")
     label_month_Top.pack()
     
-    comboExample = ttk.Combobox(window_action, 
+    comboExample = ttk.Combobox(window_action,
                                 values=['無','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'])
-    when_year=int(comboExample.current())+1
-    #print(dict(comboExample)) 
+     
     comboExample.pack()
     comboExample.current(1)
+    when_month=int(comboExample.current())+1
+    print(when_month)
     def label_year_show(widget,label):
+        global end
+        end=7
         label.pack()
         widget.pack()
+        
+    
     def label_year_forget(widget,label):
+        global end
+        end=10
         label.pack_forget()
         widget.pack_forget()
     def label_month_show(widget,label):
         label.pack()
         widget.pack()
+    
     def label_month_forget(widget,label):
         label.pack_forget()
         widget.pack_forget()
@@ -258,16 +279,30 @@ def total_input():
     ###確定
     def sure():
         """点击退出按钮时调用这个函数"""
+        global when_year,when_month,time_choose2
+        if comboExample_year.current()==0 or comboExample.current()==0:
+            time_choose2=0
+        else:
+            
+            time_choose2=1
+            when_year=int(comboExample_year.get())
+            when_month=int(comboExample.current())
+        #window_action.quit()  # 结束主循环
+        #window_action.destroy()  # 销毁窗口
+    def _quit():
+        """点击退出按钮时调用这个函数"""
         window_action.quit()  # 结束主循环
-        #window.destroy()  # 销毁窗口
-    
+        #window_action.destroy()  # 销毁窗口
     
     # 创建一个按钮,并把上面那个函数绑定过来
-    button0 = tk.Button(master=window_action, text="確定", command=sure)
+    #button0 = tk.Button(master=window_action, text="確定", , font=("Arial", 15), relief=FLAT, bg='#14A769', fg='white',command=[sure(),quit()])
+    button0=tk.Button(master=window_action, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white', command=lambda:[sure,_quit])
+           
+
     # 按钮放在下边
     button0.pack(side=tk.BOTTOM)
     window_action.mainloop()
-    print("123",end)
+    
                
 
      #tkinter
@@ -275,7 +310,7 @@ def total_input():
     root2.title("在tkinter中使用matplotlib")
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)  # 添加子图:1行1列第1个
-    print("1234",end)
+    
     #print(end)
     timeset=set()
     total=dict()
@@ -304,17 +339,17 @@ def total_input():
     file.close()
     
     
-    print('search',search)
+    print('search',when_year)
     #print(data)
     #dataset = json.loads(data)
     #print(dataset)
     time=[]
     time1=[]
     for i in total:
-        print(time_choose2," ",end," ",i)
-        if time_choose2==1 and end==4:
-            if i[0:4]==when_year:
-                print(i[0:4])
+        print(time_choose2," ",end," ",i," ",when_year)
+        if time_choose2==1 and end==7:
+            if i[0:4]==str(when_year):
+                print("end=4",i[0:4])
                 #np.insert(time,-1,i)
                 time.append(i)
                 toss.append(total[i]['toss'])
@@ -322,9 +357,12 @@ def total_input():
                 squat.append(total[i]['squat'])
                 situp.append(total[i]['situp'])
                 stick.append(total[i]['stick'])
-        if time_choose2==1 and end==7:
-            if i[0:7]==when_year+'-'+when_month:
-                print(i)
+                print('toss',toss)
+                print('serve',serve)
+                print('stick',stick)
+        if time_choose2==1 and end==10:
+            if i[0:7]==str(when_year)+'-'+str(when_month):
+                print("357",i)
                 #np.insert(time,-1,i)
                 time.append(i)
                 toss.append(total[i]['toss'])
@@ -334,7 +372,9 @@ def total_input():
                 stick.append(total[i]['stick'])
         elif time_choose2!=1:
             print("here",i)
-            #np.insert(time,-1,i)
+            print('toss',toss)
+            print('serve',serve)
+            print('stick',stick)
             time.append(i)
             toss.append(total[i]['toss'])
             serve.append(total[i]['serve'])
@@ -343,9 +383,11 @@ def total_input():
             stick.append(total[i]['stick'])
         
     width=0.15 
+    print('len(search)',len(search))
     print('len(time)',len(time))
     print('stick',stick)
-    print(toss)
+    print('search',search)
+    print('search_name',search_name)
     #time= list(map(int,time))
     print(time)
     for i in range(len(time)):
@@ -364,10 +406,11 @@ def total_input():
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)  # 添加子图:1行1列第1个
         
-   
+    print('x1',x1)
+    print('x2',x2)
     for i in range(len(search)):
-        print(x[i]," ",search[i]," ",str(search[i])," ",color[i])
-        a.bar(x[i], search[i], label=str(search[i]),color=color[i], align = "edge", width = 0.15) #繪製長條圖
+        print(x[i]," ",search[i]," ",str(search_name[i])," ",color[i])
+        a.bar(x[i], search[i], label=str(search_name[i]),color=color[i], align = "edge", width = 0.15) #繪製長條圖
     #a.bar(x1, toss, label='toss',color='#EFB28C', align = "edge", width = 0.15)  #繪製長條圖
     #a.bar(x2, serve, label='serve',color='#EED19C', align = "edge", width = 0.15) #繪製長條圖
     
