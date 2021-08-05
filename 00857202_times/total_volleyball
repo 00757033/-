@@ -1,483 +1,969 @@
 # -*- coding: utf-8 -*-
 """
-8/04
-action 失敗 search一直歸[] google global maybe 換全部或多選
-time ok
-makeup ok
-special 讀取成功但後面程式未改 
-"""
-"""
-Created on Tue Aug  3 10:12:14 2021
+Created on Sun Jul 25 05:04:03 2021
 
-@author: 翁培馨
-
-tkinter圖 matplotlib.pyplot在运行的时候，是需要在主线程(Main Thread)上运行的，然而，我在使用多线程的时候，将使用matplotlib.pyplot的函数用在了子线程里面
-加這三行
-import matplotlib 
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt 
-https://www.codenong.com/cs105734243/
+@author: User
 """
-#此會在開chat就跑
+# -*- coding: utf-8 -*-
+"""
+@author: 00857202翁培馨
+"""
+ai_name = 'F.R.I.D.Y.'.lower()
+EXIT_COMMANDS = ['bye','exit','quit','shut down', 'shutdown']
 
+rec_email, rec_phoneno = "", ""
+WAEMEntry = None
+
+avatarChoosen = 0
+choosedAvtrImage = None
+
+botChatTextBg = "#007cc7"
+botChatText = "white"
+userChatTextBg = "#4da8da"
+
+chatBgColor = '#12232e'
+background = '#203647'
+textColor = 'white'
+AITaskStatusLblBG = '#203647'
+KCS_IMG = 1 #0 for light, 1 for dark
+voice_id = 0 #0 for female, 1 for male
+ass_volume = 1 #max volume
+ass_voiceRate = 200 #normal voice rate
+new_lock=0
+####################################### IMPORTING MODULES ###########################################
+""" User Created Modules """
 try:
-        import time
-        import json
-        import base64
-        import matplotlib 
-        matplotlib.use('Agg')
-        from matplotlib import pyplot as plt        
-        from PIL import Image
-        import cv2
-        import os
-        import tkinter as tk
-        import numpy as np
-        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-        from matplotlib.backend_bases import key_press_handler
-        from matplotlib.figure import Figure
-        #from tkinter import *
-        import tkinter.ttk as ttk
-        from threading import Thread
-except OSError as e:
-    print(e)
-def total_start():
-    
-    #print("888",search)
-    Thread(args=total_input()).start()
-    
-def total_input():
-    #global 先設值在 查一下
-    #並且要每個def都使用
+	import normalChat
+	import math_function
+	import appControl
+	import webScrapping
+	import game
+	from userHandler import UserData
+	import timer
+	from FACE_UNLOCKER import clickPhoto, viewPhoto
+	import dictionary
+	import ToDo
+	import fileHandler
+	import angle
+	import action_total
+	import record_volleyball
+except Exception as e:
+	raise e
 
-    timeset=set()
-    total=dict()
-    file = open("timestamp.txt", "r")
-    for line in file.readlines():
-        #base64_bytes = line.encode("ascii")
-        #sample_string_bytes = base64.b64decode(base64_bytes)
-        #sample_string = sample_string_bytes.decode("ascii")
-        dataset = json.loads(line)
-        if dataset["time"][0:4]  not in timeset:
-            timeset.add(dataset["time"][0:4])
-            total[dataset["time"][0:4]]=dict()
+""" System Modules """
+try:
+	import os
+	import speech_recognition as sr
+	import pyttsx3
+	from tkinter import *
+	from tkinter import ttk
+	from tkinter import messagebox
+	from tkinter import colorchooser
+	from PIL import Image, ImageTk
+	from time import sleep
+	from threading import Thread
+    
+except Exception as e:
+	print(e)
 
-        
-        #print(dataset['time'][0:int(end)])
-        #print(total[dataset["time"][0:int(end)]]['toss'])
-    file.close()
-    text=''
-    global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
-    
-    
-   #####把input action 刪除 因方法不直覺且沒真正放進去(可在後面判別要不要加)  
-    '''
-    def plus():
-        
+########################################## LOGIN CHECK ##############################################
+try:
+	
+	user = UserData()
+	user.extractData()
+	ownerName = user.getName().split()[0]
+	ownerDesignation = "Sir"
+	if user.getGender()=="Female": ownerDesignation = "Ma'am"
+	ownerPhoto = user.getUserPhoto()
+except Exception as e:
+	print("You're not Registered Yet !\nRun SECURITY.py file to register your face.")
+	raise SystemExit
 
-        if str(entry_action.get()) not in search_name :
-            if entry_action.get()=="toss":
-                search.append(toss)
-                search_name.append('toss')
-                print(search)
-                return search,search_name
-            if entry_action.get()=="serve":
-                search.append(serve)
-                search_name.append('serve')
-                print(search)
-                return search,search_name
-            if entry_action.get()=="棒式":
-                search.append(stick)
-                search_name.append('squat')
-                print(search)
-                return search,search_name
-            if entry_action.get()=="仰臥起坐":
-                search.append(situp)
-                search_name.append('situp')
-                print(search)
-                return search,search_name
-            if entry_action.get()=="棒式":
-                search.append(stick)
-                search_name.append('stick')
-                print(search)
-                return search,search_name
-    label_action = tk.Label(root1, text = '動作')
-    
-    label_action.pack()  
-    # 輸入欄位
-    entry_action = tk.Entry(root1,     # 輸入欄位所在視窗
-                     width = 20) # 輸入欄位的寬度
-    entry_action.pack()
-    # 按鈕
-    button = tk.Button(root1, text = "加入", command = plus)
-    button.pack()
-        ''' 
-        
-    root1 = tk.Tk()
-    root1.title("record")
-    root1.geometry('500x500')
-    
-    
-    def update_date(i):
-        global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
 
-        
-        
-        
-        
-        time_choose1=0
-        time_choose2=0
-        time_type2=0
-        data_choose=1
-        end=4
-        file_name='timestamp.txt'
-        when_month=1
-        when_year=2021
-        print(i)
-        if values[i]==0:
-            
-            time_choose1=0
-            print(time_choose1)
-            end=4
-            print(end)
-            return end
-            
-            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-        if values[i]==1:
-            time_choose1=1
-            end=7
-            return end
-            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-        if values[i]==2:
-            time_choose1=2
-            #file_name='timestamp.txt'
-            end=10
-            return end
-            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-            
-    def update_makeup(i):
-        global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+########################################## BOOT UP WINDOW ###########################################
+def ChangeSettings(write=False):
+	import pickle
+	global background, textColor, chatBgColor, voice_id, ass_volume, ass_voiceRate, AITaskStatusLblBG, KCS_IMG, botChatTextBg, botChatText, userChatTextBg
+	setting = {'background': background,
+				'textColor': textColor,
+				'chatBgColor': chatBgColor,
+				'AITaskStatusLblBG': AITaskStatusLblBG,
+				'KCS_IMG': KCS_IMG,
+				'botChatText': botChatText,
+				'botChatTextBg': botChatTextBg,
+				'userChatTextBg': userChatTextBg,
+				'voice_id': voice_id,
+				'ass_volume': ass_volume,
+				'ass_voiceRate': ass_voiceRate
+			}
+	if write:
+		with open('userData/settings.pck', 'wb') as file:
+			pickle.dump(setting, file)
+		return
+	try:
+		with open('userData/settings.pck', 'rb') as file:
+			loadSettings = pickle.load(file)
+			background = loadSettings['background']
+			textColor = loadSettings['textColor']
+			chatBgColor = loadSettings['chatBgColor']
+			AITaskStatusLblBG = loadSettings['AITaskStatusLblBG']
+			KCS_IMG = loadSettings['KCS_IMG']
+			botChatText = loadSettings['botChatText']
+			botChatTextBg = loadSettings['botChatTextBg']
+			userChatTextBg = loadSettings['userChatTextBg']
+			voice_id = loadSettings['voice_id']
+			ass_volume = loadSettings['ass_volume']
+			ass_voiceRate = loadSettings['ass_voiceRate']
+	except Exception as e:
+		pass
 
-        print('update_makeup',i)
-        if values_makeup[i]==0:
-            
-            data_choose=1
-            file_name='timestamp_file_no_makeup.txt'
-            print('file_name',file_name)
-            return file_name
-            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-        if values_makeup[i]==1:
-            print("v_s5")
-            data_choose=0
-            file_name='timestamp.txt'
-            #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
-          
-            return file_name
-    
-    #print('file_name',file_name)
-    texts_makeup = ['是', '否']
-    label_makeup = tk.Label(root1,text='是否要刪除沒運動的日子')
-    label_makeup.pack()
-    values_makeup = [0, 1]
-    select_makeup = tk.IntVar()
-    select_makeup.set(1)
-    widget_makeup = [None]*len(texts_makeup)
-    for i, (t, v) in enumerate(zip(texts_makeup, values_makeup)):
-        widget_makeup[i] = tk.Radiobutton(root1,
-            text=t, value=v, variable=select_makeup,
-            command=lambda index=i: update_makeup(index))
-        widget_makeup[i].pack()#side=tk.LEFT
+if os.path.exists('userData/settings.pck')==False:
+	ChangeSettings(True)
+	
+def getChatColor():
+	global chatBgColor
+	chatBgColor = myColor[1]
+	colorbar['bg'] = chatBgColor
+	chat_frame['bg'] = chatBgColor
+	root1['bg'] = chatBgColor
 
-    texts = ['年', '月', '日']
-    label_date = tk.Label(root1,text='時間格式')
-    label_date.pack()
-    values = [0, 1, 2]
-    select = tk.IntVar()
-    select.set(0)
-    widget = [None]*len(texts)
-    for i, (t, v) in enumerate(zip(texts, values)):
-        if i==0:
-            widget[i] = tk.Radiobutton(root1,
-                text=t, value=v, variable=select,
-                command=lambda index=i: [update_date(index),label_year_show(comboExample_year,label_year_Top),label_month_forget(comboExample,label_month_Top)])
-        elif i==1:
-            widget[i] = tk.Radiobutton(root1,
-                    text=t, value=v, variable=select,
-                    command=lambda index=i: [update_date(index),label_year_show(comboExample_year,label_month_Top),label_month_show(comboExample,label_month_Top)])
-       
+def changeTheme():
+	global background, textColor, AITaskStatusLblBG, KCS_IMG, botChatText, botChatTextBg, userChatTextBg, chatBgColor
+	if themeValue.get()==1:
+		background, textColor, AITaskStatusLblBG, KCS_IMG = "#203647", "white", "#203647",1
+		cbl['image'] = cblDarkImg
+		kbBtn['image'] = kbphDark
+		settingBtn['image'] = sphDark
+		AITaskStatusLbl['bg'] = AITaskStatusLblBG
+		botChatText, botChatTextBg, userChatTextBg = "white", "#007cc7", "#4da8da"
+		chatBgColor = "#12232e"
+		colorbar['bg'] = chatBgColor
+	else:
+		background, textColor, AITaskStatusLblBG, KCS_IMG = "#F6FAFB", "#303E54", "#14A769", 0
+		cbl['image'] = cblLightImg
+		kbBtn['image'] = kbphLight
+		settingBtn['image'] = sphLight
+		AITaskStatusLbl['bg'] = AITaskStatusLblBG
+		botChatText, botChatTextBg, userChatTextBg = "#494949", "#EAEAEA", "#23AE79"
+		chatBgColor = "#F6FAFB"
+		colorbar['bg'] = '#E8EBEF'
+
+	root['bg'], root2['bg'] = background, background
+	settingsFrame['bg'] = background
+	settingsLbl['fg'], userPhoto['fg'], userName['fg'], assLbl['fg'], voiceRateLbl['fg'], volumeLbl['fg'], themeLbl['fg'], chooseChatLbl['fg'] = textColor, textColor, textColor, textColor, textColor, textColor, textColor, textColor
+	settingsLbl['bg'], userPhoto['bg'], userName['bg'], assLbl['bg'], voiceRateLbl['bg'], volumeLbl['bg'], themeLbl['bg'], chooseChatLbl['bg'] = background, background, background, background, background, background, background, background
+	s.configure('Wild.TRadiobutton', background=background, foreground=textColor)
+	volumeBar['bg'], volumeBar['fg'], volumeBar['highlightbackground'] = background, textColor, background
+	chat_frame['bg'], root1['bg'] = chatBgColor, chatBgColor
+	userPhoto['activebackground'] = background
+	ChangeSettings(True)
+
+def changeVoice(e):
+	global voice_id
+	voice_id=0
+	if assVoiceOption.get()=='Male': voice_id=1
+	engine.setProperty('voice', voices[voice_id].id)
+	ChangeSettings(True)
+
+def changeVolume(e):
+	global ass_volume
+	ass_volume = volumeBar.get() / 100
+	engine.setProperty('volume', ass_volume)
+	ChangeSettings(True)
+
+def changeVoiceRate(e):
+	global ass_voiceRate
+	temp = voiceOption.get()
+	if temp=='Very Low': ass_voiceRate = 100
+	elif temp=='Low': ass_voiceRate = 150
+	elif temp=='Fast': ass_voiceRate = 250
+	elif temp=='Very Fast': ass_voiceRate = 300
+	else: ass_voiceRate = 200
+	print(ass_voiceRate)
+	engine.setProperty('rate', ass_voiceRate)
+	ChangeSettings(True)
+
+ChangeSettings()
+
+############################################ SET UP VOICE ###########################################
+try:
+	engine = pyttsx3.init()
+	voices = engine.getProperty('voices')
+	engine.setProperty('voice', voices[voice_id].id) #male
+	engine.setProperty('volume', ass_volume)
+except Exception as e:
+	print(e)
+
+
+####################################### SET UP TEXT TO SPEECH #######################################
+def speak(text, display=False, icon=False):
+	AITaskStatusLbl['text'] = 'Speaking...'
+	if icon: Label(chat_frame, image=botIcon, bg=chatBgColor).pack(anchor='w',pady=0)
+	if display: attachTOframe(text, True)
+	print('\n'+ai_name.upper()+': '+text)
+	try:
+		engine.say(text)
+		engine.runAndWait()
+	except:
+		print("Try not to type more...")
+		print("123")
+
+####################################### SET UP SPEECH TO TEXT #######################################
+def record(clearChat=True, iconDisplay=True):
+	print('\nListening...')
+
+	AITaskStatusLbl['text'] = 'Listening...'
+	r = sr.Recognizer()
+	r.dynamic_energy_threshold = False
+	r.energy_threshold = 4000
+	with sr.Microphone() as source:
+		
+		r.adjust_for_ambient_noise(source)
+		audio = r.listen(source)
+		said = ""
         
-        elif i==2:
-            widget[i] = tk.Radiobutton(root1,
-                    text=t, value=v, variable=select,
-                    command=lambda index=i: [update_date(index),label_year_forget(comboExample_year,label_year_Top),label_month_forget(comboExample,label_month_Top)])
-        widget[i].pack()
-        
-    timeset=list(timeset)#sort 失敗
-    strings = [str(integer) for integer in timeset]
-    a_string = "".join(strings)
-    an_integer = int(a_string)
-    #timeset=sorted(an_integer)
-    timeset.insert(0,"無")
-    label_year_Top = ttk.Label(root1,
-                                text = "選擇你想查詢的年份")
-    label_year_Top.pack()
-    
-    comboExample_year = ttk.Combobox(root1, 
-                                values=timeset)
-    
-    
-    #print(dict(comboExample)) 
-    comboExample_year.pack()
-    comboExample_year.current(1)
-    when_year=comboExample_year.get()
-    print(when_year) 
-        #print(comboExample.current(), comboExample.get())   
-    
-    
-    label_month_Top = ttk.Label(root1,
-                                    text = "Choose your  month")
-    label_month_Top.pack()
-    
-    comboExample = ttk.Combobox(root1,
-                                values=['無','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'])
+		try:
+			AITaskStatusLbl['text'] = 'Processing...'
+			said = r.recognize_google(audio, language="zh-TW")
+			print(f"\nUser said: {said}")
      
-    comboExample.pack()
-    comboExample.current(1)
-    when_month=int(comboExample.current())+1
-    print(when_month)
-    def label_year_show(widget,label):
-        global end
-        end=7
-        label.pack()
-        widget.pack()
+			if clearChat:
+				clearChatScreen()
+			if iconDisplay: Label(chat_frame, image=userIcon, bg=chatBgColor).pack(anchor='e',pady=0)
+			attachTOframe(said)
+		except Exception as e:
+			print(e)
+			speak("I didn't get it, Say that again please...")
+			if "connection failed" in str(e):
+				speak("Your System is Offline...", True, True)
+			return 'None'
+	return said.lower()
+
+def voiceMedium():
+	while True:
+		query = record()
+		if query == 'None': continue
+		if isContain(query, EXIT_COMMANDS):
+			speak("Shutting down the System. Good Bye "+ownerDesignation+"!", True, True)
+			break
+		else: main(query.lower())
+	appControl.Win_Opt('close')
+
+def keyboardInput(e):
+	user_input = UserField.get().lower()
+	if user_input!="":
+		clearChatScreen()
+		if isContain(user_input, EXIT_COMMANDS):
+			speak("Shutting down the System. Good Bye "+ownerDesignation+"!", True, True)
+		else:
+			Label(chat_frame, image=userIcon, bg=chatBgColor).pack(anchor='e',pady=0)
+			attachTOframe(user_input.capitalize())
+			Thread(target=main, args=(user_input,)).start()
+		UserField.delete(0, END)
+	#return user_input
+def keyboardInput2():
+	user_input = UserField.get().lower()
+	Thread(target=main, args=(user_input,)).start()
+	return user_input
+
+###################################### TASK/COMMAND HANDLER #########################################
+def isContain(txt, lst):
+	for word in lst:
+		if word in txt:
+			return True
+	return False
+
+def main(text):
+		global train_lock
+		global total_lock1
+		global total_lock2
+		global total_lock2_when
+		global total_lock_make_up
+		global total_lock0
+		global train_squat
+		print(text)
+		if "project" in text:
+			if isContain(text, ['make', 'create']):
+				speak("What do you want to give the project name ?", True, True)
+				projectName = record(False, False)
+				speak(fileHandler.CreateHTMLProject(projectName.capitalize()), True)
+				return
+
+		if "create" in text and "file" in text:
+			speak(fileHandler.createFile(text), True, True)
+			return
+
+		if "translate" in text:
+			speak("What do you want to translate?", True, True)
+			sentence = record(False, False)
+			speak("Which langauage to translate ?", True)
+			langauage = record(False, False)
+			result = normalChat.lang_translate(sentence, langauage)
+			if result=="None": speak("This langauage doesn't exists")
+			else:
+				speak(f"In {langauage.capitalize()} you would say:", True)
+				if langauage=="hindi":
+					attachTOframe(result.text, True)
+					speak(result.pronunciation)
+				else: speak(result.text, True)
+			return
+
+		if '列表' in text:
+			if isContain(text, ['增加', 'create', 'make']):
+				speak("What do you want to add?", True, True)
+				item = record(False, False)
+				#item =UserField.get().lower()
+				ToDo.toDoList(item)
+				speak("Alright, I added to your list", True)
+				return
+			if isContain(text, ['show', 'my list']):
+				items = ToDo.showtoDoList()
+				if len(items)==1:
+					speak(items[0], True, True)
+					return
+				attachTOframe('\n'.join(items), True)
+				speak(items[0])
+				return
+
+		if isContain(text, ['battery', 'system info']):
+			result = appControl.OSHandler(text)
+			if len(result)==2:
+				speak(result[0], True, True)
+				attachTOframe(result[1], True)
+			else:
+				speak(result, True, True)
+			return
+			
+		if isContain(text, ['meaning', 'dictionary', 'definition', 'define']):
+			result = dictionary.translate(text)
+			speak(result[0], True, True)
+			if result[1]=='': return
+			speak(result[1], True)
+			return
+
+		if 'selfie' in text or ('click' in text and 'photo' in text):
+			speak("Sure "+ownerDesignation+"...", True, True)
+			clickPhoto()
+			speak('Do you want to view your clicked photo?', True)
+			query = record(False)
+			if isContain(query, ['yes', 'sure', 'yeah', 'show me']):
+				Thread(target=viewPhoto).start()
+				speak("Ok, here you go...", True, True)
+			else:
+				speak("No Problem "+ownerDesignation, True, True)
+			return
+
+		if 'volume' in text:
+			appControl.volumeControl(text)
+			Label(chat_frame, image=botIcon, bg=chatBgColor).pack(anchor='w',pady=0)		
+			attachTOframe('Volume Settings Changed', True)
+			return
+			
+		if isContain(text, ['timer', 'countdown']):
+			Thread(target=timer.startTimer, args=(text,)).start()
+			speak('Ok, Timer Started!', True, True)
+			return
+	
+		if 'whatsapp' in text:
+			speak("Sure "+ownerDesignation+"...", True, True)
+			speak('Whom do you want to send the message?', True)
+			WAEMPOPUP("WhatsApp", "Phone Number")
+			attachTOframe(rec_phoneno)
+			speak('What is the message?', True)
+			message = record(False, False)
+			Thread(target=webScrapping.sendWhatsapp, args=(rec_phoneno, message,)).start()
+			speak("Message is on the way. Do not move away from the screen.")
+			attachTOframe("Message Sent", True)
+			return
+
+		if 'email' in text:
+			speak('Whom do you want to send the email?', True, True)
+			WAEMPOPUP("Email", "E-mail Address")
+			attachTOframe(rec_email)
+			speak('What is the Subject?', True)
+			subject = record(False, False)
+			speak('What message you want to send ?', True)
+			message = record(False, False)
+			Thread(target=webScrapping.email, args=(rec_email,message,subject,) ).start()
+			speak('Email has been Sent', True)
+			return
+
+		if isContain(text, ['covid','virus']):
+			result = webScrapping.covid(text)
+			if 'str' in str(type(result)):
+				speak(result, True, True)
+				return
+			speak(result[0], True, True)
+			result = '\n'.join(result[1])
+			attachTOframe(result, True)
+			return
+
+		if isContain(text, ['youtube','video']):
+			speak("Ok "+ownerDesignation+", here a video for you...", True, True)
+			try:
+				speak(webScrapping.youtube(text), True)
+			except Exception as e:
+				speak("Desired Result Not Found", True)
+			return
+
+		if isContain(text, ['search', 'image']):
+			if 'image' in text and 'show' in text:
+				Thread(target=showImages, args=(text,)).start()
+				speak('Here are the images...', True, True)
+				return
+			speak(webScrapping.googleSearch(text), True, True)
+			return
+			
+		if isContain(text, ['map', 'direction']):
+			if "direction" in text:
+				speak('What is your starting location?', True, True)
+				startingPoint = record(False, False)
+				speak("Ok "+ownerDesignation+", Where you want to go?", True)
+				destinationPoint = record(False, False)
+				speak("Ok "+ownerDesignation+", Getting Directions...", True)
+				try:
+					distance = webScrapping.giveDirections(startingPoint, destinationPoint)
+					speak('You have to cover a distance of '+ distance, True)
+				except:
+					speak("I think location is not proper, Try Again!")
+			else:
+				webScrapping.maps(text)
+				speak('Here you go...', True, True)
+			return
+
+		if isContain(text, ['factorial','log','value of','math',' + ',' - ',' x ','multiply','divided by','binary','hexadecimal','octal','shift','sin ','cos ','tan ']):
+			try:
+				speak(('Result is: ' + math_function.perform(text)), True, True)
+			except Exception as e:
+				return
+			return
+
+		if "joke" in text:
+			speak('你好', True, True)
+			if 'okok' in text:
+				print("here")
+			speak(webScrapping.jokes(), True)
+			return
+
+		if isContain(text, ['news']) :
+			#new_lock=1
+            #if isContain(text, ['no']):
+			speak('Getting the latest news...', True, True)
+			headlines,headlineLinks = webScrapping.latestNews(2)
+			for head in headlines: speak(head, True)
+			speak('Do you want to read the full news?', True)
+			text = record(False, False)#keyboardInput2()
+			if isContain(text, ["no","don't"]):
+				speak("No Problem "+ownerDesignation, True)
+			else:
+				speak("Ok "+ownerDesignation+", Opening browser...", True)
+				webScrapping.openWebsite('https://indianexpress.com/latest-news/')
+				speak("You can now read the full news from this website.")
+			return
         
-    
-    def label_year_forget(widget,label):
-        global end
-        end=10
-        label.pack_forget()
-        widget.pack_forget()
-    def label_month_show(widget,label):
-        label.pack()
-        widget.pack()
-    
-    def label_month_forget(widget,label):
-        label.pack_forget()
-        widget.pack_forget()
+		if isContain(text, ['weather']):
+			data = webScrapping.weather()
+			speak('', False, True)
+			showSingleImage("weather", data[:-1])
+			speak(data[-1])
+			return
+
+		if isContain(text, ['screenshot']):
+			Thread(target=appControl.Win_Opt, args=('screenshot',)).start()
+			speak("Screen Shot Taken", True, True)
+			return
+
+		if isContain(text, ['window','close that']):
+			appControl.Win_Opt(text)
+			return
+
+		if isContain(text, ['tab']):
+			appControl.Tab_Opt(text)
+			return
+
+		if isContain(text, ['gogo']):
+			Thread(target=record_volleyball.total_start()).start()
+			return
+
+		if isContain(text, ['open','type','save','delete','select','press enter']):
+			appControl.System_Opt(text)
+			return
+
+		if isContain(text, ['wiki', 'who is']):
+			Thread(target=webScrapping.downloadImage, args=(text, 1,)).start()
+			speak('Searching...', True, True)
+			result = webScrapping.wikiResult(text)
+			showSingleImage('wiki')
+			speak(result, True)
+			return
+		
+		if isContain(text, ['game']):
+			speak("Which game do you want to play?", True, True)
+			attachTOframe(game.showGames(), True)
+			text = record(False)
+			if text=="None":
+				speak("Didn't understand what you say?", True, True)
+				return
+			if 'online' in text:
+				speak("Ok "+ownerDesignation+", Let's play some online games", True, True)
+				webScrapping.openWebsite('https://www.agame.com/games/mini-games/')
+				return
+			if isContain(text, ["don't", "no", "cancel", "back", "never"]):
+				speak("No Problem "+ownerDesignation+", We'll play next time.", True, True)
+			else:
+				speak("Ok "+ownerDesignation+", Let's Play " + text, True, True)
+				os.system(f"python -c \"import game; game.play('{text}')\"")
+			return
+
+		if isContain(text, ['coin','dice','die']):
+			if "toss" in text or "roll" in text or "flip" in text:
+				speak("Ok "+ownerDesignation, True, True)
+				result = game.play(text)
+				if "Head" in result: showSingleImage('head')
+				elif "Tail" in result: showSingleImage('tail')
+				else: showSingleImage(result[-1])
+				speak(result)
+				return
+		
+		
+		#########自我訓練#########        
+		if isContain(text, ['train','自我','訓練','練習','體能']) :
+			speak('請輸入動作toss,serve,深蹲,仰臥起坐,棒式')
+			train_lock=0#open
+			return train_lock
+		if train_lock==0:
+			if isContain(text, ['toss','serve','仰臥起坐','深蹲']) :
+				Thread(angle.training(text,0)) 
+				train_lock=1
+				return
+			if isContain(text,['棒式']):
+				train_squat=1
+				train_lock=0
+				speak('請輸入訓練秒數')
+				text = record(False, False)
+		if train_squat==1:
+				Thread(angle.training('棒式',int(text)))
+				return
+                ###### 圖表###########
+
+		
+				      
         
-        #print(comboExample.current(), comboExample.get())   
         
 
-    
-    ###確定
-    def sure():
-        """点击退出按钮时调用这个函数"""
-        global when_year,when_month,time_choose2
-        if comboExample_year.current()==0 or comboExample.current()==0:
-            time_choose2=0
-        else:
-            
-            time_choose2=1
-            when_year=int(comboExample_year.get())
-            when_month=int(comboExample.current())
-        #root1.quit()  # 结束主循环
-        #root1.destroy()  # 销毁窗口
-    def _quit():
-        """点击退出按钮时调用这个函数"""
-        root1.quit()  # 结束主循环
-        root1.destroy()  # 销毁窗口
-    
-    # 创建一个按钮,并把上面那个函数绑定过来
-    #button0 = tk.Button(master=root1, text="確定", , font=("Arial", 15), relief=FLAT, bg='#14A769', fg='white',command=[sure(),quit()])
-    button0=tk.Button(master=root1, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white', command=lambda:[sure,_quit])
-           
+		if 'my name' in text:
+			speak('Your name is, ' + ownerName, True, True)
+			return
 
-    # 按钮放在下边
-    button0.pack(side=tk.BOTTOM)
-    root1.mainloop()
-    
-    
-    
-    
-################################################draw plot#######################################################
-    search=[]
-    search_name=[]  
-    serve=[]
-    toss=[]
-    squat=[] 
-    situp=[]
-    stick=[]         
+		if isContain(text, ['聲音']):
+			global voice_id
+			try:
+				if 'female' in text: voice_id = 0
+				elif 'male' in text: voice_id = 1
+				else:
+					if voice_id==0: voice_id=1
+					else: voice_id=0
+				engine.setProperty('voice', voices[voice_id].id)
+				ChangeSettings(True)
+				speak("哈囉 "+ownerDesignation+", I have changed my voice. How may I help you?", True, True)
+				assVoiceOption.current(voice_id)
+			except Exception as e:
+				print(e)
+			return
+
+		if isContain(text, ['早上','evening','noon']) and 'good' in text:
+			speak(normalChat.chat("good"), True, True)
+			return
+		
+		result = normalChat.reply(text)
+		#if  != "None": speak(result, True, True)
+		#else:
+			#speak("Here's what I found on the web... ", True, True)
+			#webScrapping.googleSearch(text)
+		
+
+##################################### DELETE USER ACCOUNT #########################################
+def deleteUserData():
+	result = messagebox.askquestion('Alert', 'Are you sure you want to delete your Face Data ?')
+	if result=='no': return
+	messagebox.showinfo('Clear Face Data', 'Your face has been cleared\nRegister your face again to use.')
+	import shutil
+	shutil.rmtree('userData')
+	root.destroy()
+
+						#####################
+						####### GUI #########
+						#####################
+
+############ ATTACHING BOT/USER CHAT ON CHAT SCREEN ###########
+def attachTOframe(text,bot=False):
+	if bot:
+		botchat = Label(chat_frame,text=text, bg=botChatTextBg, fg=botChatText, justify=LEFT, wraplength=250, font=('Montserrat',12, 'bold'))
+		botchat.pack(anchor='w',ipadx=5,ipady=5,pady=5)
+	else:
+		userchat = Label(chat_frame, text=text, bg=userChatTextBg, fg='white', justify=RIGHT, wraplength=250, font=('Montserrat',12, 'bold'))
+		userchat.pack(anchor='e',ipadx=2,ipady=2,pady=5)
+
+def clearChatScreen():
+	for wid in chat_frame.winfo_children():
+		wid.destroy()
+
+### SWITCHING BETWEEN FRAMES ###
+def raise_frame(frame):
+	frame.tkraise()
+	clearChatScreen()
+
+################# SHOWING DOWNLOADED IMAGES ###############
+img0, img1, img2, img3, img4 = None, None, None, None, None
+def showSingleImage(type, data=None):
+	global img0, img1, img2, img3, img4
+	try:
+		img0 = ImageTk.PhotoImage(Image.open('Downloads/0.jpg').resize((90,110), Image.ANTIALIAS))
+	except:
+		pass
+	img1 = ImageTk.PhotoImage(Image.open('extrafiles/images/heads.jpg').resize((220,200), Image.ANTIALIAS))
+	img2 = ImageTk.PhotoImage(Image.open('extrafiles/images/tails.jpg').resize((220,200), Image.ANTIALIAS))
+	img4 = ImageTk.PhotoImage(Image.open('extrafiles/images/WeatherImage.png'))
+
+	if type=="weather":
+		weather = Frame(chat_frame)
+		weather.pack(anchor='w')
+		Label(weather, image=img4, bg=chatBgColor).pack()
+		Label(weather, text=data[0], font=('Arial Bold', 45), fg='white', bg='#3F48CC').place(x=65,y=45)
+		Label(weather, text=data[1], font=('Montserrat', 15), fg='white', bg='#3F48CC').place(x=78,y=110)
+		Label(weather, text=data[2], font=('Montserrat', 10), fg='white', bg='#3F48CC').place(x=78,y=140)
+		Label(weather, text=data[3], font=('Arial Bold', 12), fg='white', bg='#3F48CC').place(x=60,y=160)
+
+	elif type=="wiki":
+		Label(chat_frame, image=img0, bg='#EAEAEA').pack(anchor='w')
+	elif type=="head":
+		Label(chat_frame, image=img1, bg='#EAEAEA').pack(anchor='w')
+	elif type=="tail":
+		Label(chat_frame, image=img2, bg='#EAEAEA').pack(anchor='w')
+	else:
+		img3 = ImageTk.PhotoImage(Image.open('extrafiles/images/dice/'+type+'.jpg').resize((200,200), Image.ANTIALIAS))
+		Label(chat_frame, image=img3, bg='#EAEAEA').pack(anchor='w')
+	
+def showImages(query):
+	global img0, img1, img2, img3
+	webScrapping.downloadImage(query)
+	w, h = 150, 110
+	#Showing Images
+	imageContainer = Frame(chat_frame, bg='#EAEAEA')
+	imageContainer.pack(anchor='w')
+	#loading images
+	img0 = ImageTk.PhotoImage(Image.open('Downloads/0.jpg').resize((w,h), Image.ANTIALIAS))
+	img1 = ImageTk.PhotoImage(Image.open('Downloads/1.jpg').resize((w,h), Image.ANTIALIAS))
+	img2 = ImageTk.PhotoImage(Image.open('Downloads/2.jpg').resize((w,h), Image.ANTIALIAS))
+	img3 = ImageTk.PhotoImage(Image.open('Downloads/3.jpg').resize((w,h), Image.ANTIALIAS))
+	#Displaying
+	Label(imageContainer, image=img0, bg='#EAEAEA').grid(row=0, column=0)
+	Label(imageContainer, image=img1, bg='#EAEAEA').grid(row=0, column=1)
+	Label(imageContainer, image=img2, bg='#EAEAEA').grid(row=1, column=0)
+	Label(imageContainer, image=img3, bg='#EAEAEA').grid(row=1, column=1)
 
 
-    
-    #print(end)
-    timeset=set()
-    total=dict()
-    file = open(file_name, "r")
-    for line in file.readlines():
-        #base64_bytes = line.encode("ascii")
-        #sample_string_bytes = base64.b64decode(base64_bytes)
-        #sample_string = sample_string_bytes.decode("ascii")
-        dataset = json.loads(line)
-        if dataset["time"][0:int(end)]  not in timeset:
-            timeset.add(dataset["time"][0:int(end)])
-            total[dataset["time"][0:int(end)]]=dict()
-            total[dataset["time"][0:int(end)]]['toss'] = 0
-            total[dataset["time"][0:int(end)]]['serve'] = 0
-            total[dataset["time"][0:int(end)]]['squat'] = 0
-            total[dataset["time"][0:int(end)]]['situp'] = 0
-            total[dataset["time"][0:int(end)]]['stick'] = 0
-        total[dataset["time"][0:int(end)]]['toss']+=dataset["action"]['toss']
-        total[dataset["time"][0:int(end)]]['serve']+=dataset["action"]['serve']
-        total[dataset["time"][0:int(end)]]['squat']+=dataset["action"]['squat']
-        total[dataset["time"][0:int(end)]]['situp']+=dataset["action"]['situp']
-        total[dataset["time"][0:int(end)]]['stick']+=dataset["action"]['stick']
-        
-        #print(dataset['time'][0:int(end)])
-        #print(total[dataset["time"][0:int(end)]]['toss'])
-    file.close()
-    
-    
-    print('search',when_year)
-    #print(data)
-    #dataset = json.loads(data)
-    #print(dataset)
-    time=[]
-    time1=[]
-    for i in total:
-        
-        print(time_choose2," ",end," ",i," ",when_year)
-        if time_choose2==1 and end==7:
-            if i[0:4]==str(when_year):
-                print("end=4",i[0:4])
-                #np.insert(time,-1,i)
-                time.append(i)
-                toss.append(total[i]['toss'])
-                serve.append(total[i]['serve'])
-                squat.append(total[i]['squat'])
-                situp.append(total[i]['situp'])
-                stick.append(total[i]['stick'])
-                print('toss',toss)
-                print('serve',serve)
-                print('stick',stick)
-        if time_choose2==1 and end==10:
-            if i[0:7]==str(when_year)+'-'+str(when_month):
-                print("357",i)
-                #np.insert(time,-1,i)
-                time.append(i)
-                toss.append(total[i]['toss'])
-                serve.append(total[i]['serve'])
-                squat.append(total[i]['squat'])
-                situp.append(total[i]['situp'])
-                stick.append(total[i]['stick'])
-        elif time_choose2!=1:
-            print("here",i)
-            print('toss',toss)
-            print('serve',serve)
-            print('stick',stick)
-            time.append(i)
-            toss.append(total[i]['toss'])
-            serve.append(total[i]['serve'])
-            squat.append(total[i]['squat'])
-            situp.append(total[i]['situp'])
-            stick.append(total[i]['stick'])
-    search.append(toss)
-    search.append(serve)
-    search.append(squat)
-    search.append(situp)
-    search.append(stick)
-    search_name.append('toss')
-    search_name.append('serve')
-    search_name.append('squat')
-    search_name.append('situp')
-    search_name.append('stick')
-    width=0.15 
-    print('len(search)',len(search))
-    print('len(time)',len(time))
-    print('stick',stick)
-    print('search',search)
-    print('search_name',search_name)
-    #time= list(map(int,time))
-    print(time)
-    for i in range(len(time)):
-        time1.append(i+1)
-    x1=[p for p in time1]
-    x2=[p-width for p in time1]
-    x3=[p+ width for p in time1]
-    x4=[p -2* width for p in time1]
-    x5=[p + 2*width for p in time1]
-    color=['#E8837E','#EFB28C','#EED19C','#ACBA90','#749D9B']
-    x=[x1,x2,x3,x4,x5]
-    #plt.figure(0)
-    #tkinter
-    root2 = tk.Tk()  # 创建tkinter的主窗口
-    root2.title("在tkinter中使用matplotlib")
-    f = Figure(figsize=(5, 4), dpi=100)
-    a = f.add_subplot(111)  # 添加子图:1行1列第1个
-        
-    print('x1',x1)
-    print('x2',x2)
-    for i in range(len(search)):
-        print(x[i]," ",search[i]," ",str(search_name[i])," ",color[i])
-        a.bar(x[i], search[i], label=str(search_name[i]),color=color[i], align = "edge", width = 0.15) #繪製長條圖
-    #a.bar(x1, toss, label='toss',color='#EFB28C', align = "edge", width = 0.15)  #繪製長條圖
-    #a.bar(x2, serve, label='serve',color='#EED19C', align = "edge", width = 0.15) #繪製長條圖
-    
-    #plt.bar(time[::1],toss[::1],color=(201/255,109/255,81/255),label="toss")
-    #plt.bar(time[::1],serve[::1],color=(70/255,140/255,156/255),label="serve")
-    a.set_title("Personal Training") # title
-    a.set_ylabel("count") # y label
-    a.set_xlabel("Day") # x label
-    
-    colors=dict()
-    for i in range(len(search)):
-        print(search_name[i])
-        color_temp={str(search_name[i]):color[i]}
-        colors.update(color_temp)
-    #colors = {'toss':'#FFC9DE', 'serve':'green','squat':'#FFC9DE', 'situp':'green','stick':'#FFC9DE'}         
-    labels = list(colors.keys())
-    #plt.legend(labels)
-    #plt.xticks([p+width for p in x1],time)
-    a.legend(labels)
-    a.set_xticks(time1)
-    a.set_xticklabels(time)
+############################# WAEM - WhatsApp Email ##################################
+def sendWAEM():
+	global rec_phoneno, rec_email
+	data = WAEMEntry.get()
+	rec_email, rec_phoneno = data, data
+	WAEMEntry.delete(0, END)
+	appControl.Win_Opt('close')
+def send(e):
+	sendWAEM()
 
-    
+def WAEMPOPUP(Service='None', rec='Reciever'):
+	global WAEMEntry
+	PopUProot = Tk()
+	PopUProot.title(f'{Service} Service')
+	PopUProot.configure(bg='white')
 
-    # 将绘制的图形显示到tkinter:创建属于root的canvas画布,并将图f置于画布上
-    canvas = FigureCanvasTkAgg(f, master=root2)
-    canvas.draw()  # 注意show方法已经过时了,这里改用draw
-    canvas.get_tk_widget().pack(side=tk.TOP,  # 上对齐
-                                fill=tk.BOTH,  # 填充方式
-                                expand=tk.YES)  # 随窗口大小调整而调整
-    
-    # matplotlib的导航工具栏显示上来(默认是不会显示它的)
-    toolbar = NavigationToolbar2Tk(canvas, root2)
-    toolbar.update()
-    canvas._tkcanvas.pack(side=tk.TOP,  # get_tk_widget()得到的就是_tkcanvas
-                          fill=tk.BOTH,
-                          expand=tk.YES)
-    
-    
-    def on_key_event(event):
-        """键盘事件处理"""
-        print("你按了%s" % event.key)
-        key_press_handler(event, canvas, toolbar)
-    
-    
-    # 绑定上面定义的键盘事件处理函数
-    canvas.mpl_connect('key_press_event', on_key_event)
-    
-    
-    def _quit():
-        """点击退出按钮时调用这个函数"""
-        root2.quit()  # 结束主循环
-        root2.destroy()  # 销毁窗口
-    
-    
-    # 创建一个按钮,并把上面那个函数绑定过来
-    button = tk.Button(master=root2, text="退出", command=_quit)
-    # 按钮放在下边
-    button.pack(side=tk.BOTTOM)
-    
-    # 主循环
-    root2.mainloop()
+	if Service=="WhatsApp": PopUProot.iconbitmap("extrafiles/images/whatsapp.ico")
+	else: PopUProot.iconbitmap("extrafiles/images/email.ico")
+	w_width, w_height = 410, 200
+	s_width, s_height = PopUProot.winfo_screenwidth(), PopUProot.winfo_screenheight()
+	x, y = (s_width/2)-(w_width/2), (s_height/2)-(w_height/2)
+	PopUProot.geometry('%dx%d+%d+%d' % (w_width,w_height,x,y-30)) #center location of the screen
+	Label(PopUProot, text=f'Reciever {rec}', font=('Arial', 16), bg='white').pack(pady=(20, 10))
+	WAEMEntry = Entry(PopUProot, bd=10, relief=FLAT, font=('Arial', 12), justify='center', bg='#DCDCDC', width=30)
+	WAEMEntry.pack()
+	WAEMEntry.focus()
+
+	SendBtn = Button(PopUProot, text='Send', font=('Arial', 12), relief=FLAT, bg='#14A769', fg='white', command=sendWAEM)
+	SendBtn.pack(pady=20, ipadx=10)
+	PopUProot.bind('<Return>', send)
+	PopUProot.mainloop()
+
+######################## CHANGING CHAT BACKGROUND COLOR #########################
+def getChatColor():
+	global chatBgColor
+	myColor = colorchooser.askcolor()
+	if myColor[1] is None: return
+	chatBgColor = myColor[1]
+	colorbar['bg'] = chatBgColor
+	chat_frame['bg'] = chatBgColor
+	root1['bg'] = chatBgColor
+	ChangeSettings(True)
+
+chatMode = 1
+def changeChatMode():
+	global chatMode
+	if chatMode==1:
+		# appControl.volumeControl('mute')
+		VoiceModeFrame.pack_forget()
+		TextModeFrame.pack(fill=BOTH)
+		UserField.focus()
+		chatMode=0
+	else:
+		# appControl.volumeControl('full')
+		TextModeFrame.pack_forget()
+		VoiceModeFrame.pack(fill=BOTH)
+		root.focus()
+		chatMode=1
+
+############################################## GUI #############################################
+
+def onhover(e):
+	userPhoto['image'] = chngPh
+def onleave(e):
+	userPhoto['image'] = userProfileImg
+
+def UpdateIMAGE():
+	global ownerPhoto, userProfileImg, userIcon
+
+	os.system('python ChooseAvatarPIC.py')
+	u = UserData()
+	u.extractData()
+	ownerPhoto = u.getUserPhoto()
+	userProfileImg = ImageTk.PhotoImage(Image.open("extrafiles/images/avatars/a"+str(ownerPhoto)+".png").resize((120, 120)))
+
+	userPhoto['image'] = userProfileImg
+	userIcon = PhotoImage(file="extrafiles/images/avatars/ChatIcons/a"+str(ownerPhoto)+".png")
+
+def SelectAvatar():	
+	Thread(target=UpdateIMAGE).start()
+
+
+#####################################  MAIN GUI ####################################################
+
+#### SPLASH/LOADING SCREEN ####
+def progressbar():
+	s = ttk.Style()
+	s.theme_use('clam')
+	s.configure("white.Horizontal.TProgressbar", foreground='white', background='white')
+	progress_bar = ttk.Progressbar(splash_root,style="white.Horizontal.TProgressbar", orient="horizontal",mode="determinate", length=303)
+	progress_bar.pack()
+	splash_root.update()
+	progress_bar['value'] = 0
+	splash_root.update()
+ 
+	while progress_bar['value'] < 100:
+		progress_bar['value'] += 5
+		# splash_percentage_label['text'] = str(progress_bar['value']) + ' %'
+		splash_root.update()
+		sleep(0.1)
+
+def destroySplash():
+	splash_root.destroy()
+
+if __name__ == '__main__':
+	
+	splash_root = Tk()
+	splash_root.configure(bg='#3895d3')
+	splash_root.overrideredirect(True)
+	splash_label = Label(splash_root, text="Processing...", font=('montserrat',15),bg='#3895d3',fg='white')
+	splash_label.pack(pady=40)
+	# splash_percentage_label = Label(splash_root, text="0 %", font=('montserrat',15),bg='#3895d3',fg='white')
+	# splash_percentage_label.pack(pady=(0,10))
+
+	w_width, w_height = 400, 200
+	s_width, s_height = splash_root.winfo_screenwidth(), splash_root.winfo_screenheight()
+	x, y = (s_width/2)-(w_width/2), (s_height/2)-(w_height/2)
+	splash_root.geometry('%dx%d+%d+%d' % (w_width,w_height,x,y-30))
+
+	progressbar()
+	splash_root.after(10, destroySplash)
+	splash_root.mainloop()	
+
+	root = Tk()
+	root.title('F.R.I.D.A.Y')
+	w_width, w_height = 400, 650
+	s_width, s_height = root.winfo_screenwidth(), root.winfo_screenheight()
+	x, y = (s_width/2)-(w_width/2), (s_height/2)-(w_height/2)
+	root.geometry('%dx%d+%d+%d' % (w_width,w_height,x,y-30)) #center location of the screen
+	root.configure(bg=background)
+	# root.resizable(width=False, height=False)
+	root.pack_propagate(0)
+
+	root1 = Frame(root, bg=chatBgColor)
+	root2 = Frame(root, bg=background)
+	root3 = Frame(root, bg=background)
+
+	for f in (root1, root2, root3):
+		f.grid(row=0, column=0, sticky='news')	
+	
+	################################
+	########  CHAT SCREEN  #########
+	################################
+
+	#Chat Frame
+	chat_frame = Frame(root1, width=380,height=551,bg=chatBgColor)
+	chat_frame.pack(padx=10)
+	chat_frame.pack_propagate(0)
+
+	bottomFrame1 = Frame(root1, bg='#dfdfdf', height=100)
+	bottomFrame1.pack(fill=X, side=BOTTOM)
+	VoiceModeFrame = Frame(bottomFrame1, bg='#dfdfdf')
+	VoiceModeFrame.pack(fill=BOTH)
+	TextModeFrame = Frame(bottomFrame1, bg='#dfdfdf')
+	TextModeFrame.pack(fill=BOTH)
+
+	# VoiceModeFrame.pack_forget()
+	TextModeFrame.pack_forget()
+
+	cblLightImg = PhotoImage(file='extrafiles/images/centralButton.png')
+	cblDarkImg = PhotoImage(file='extrafiles/images/centralButton1.png')
+	if KCS_IMG==1: cblimage=cblDarkImg
+	else: cblimage=cblLightImg
+	cbl = Label(VoiceModeFrame, fg='white', image=cblimage, bg='#dfdfdf')
+	cbl.pack(pady=17)
+	AITaskStatusLbl = Label(VoiceModeFrame, text='    Offline', fg='white', bg=AITaskStatusLblBG, font=('montserrat', 16))
+	AITaskStatusLbl.place(x=140,y=32)
+	
+	#Settings Button
+	sphLight = PhotoImage(file = "extrafiles/images/setting.png")
+	sphLight = sphLight.subsample(2,2)
+	sphDark = PhotoImage(file = "extrafiles/images/setting1.png")
+	sphDark = sphDark.subsample(2,2)
+	if KCS_IMG==1: sphimage=sphDark
+	else: sphimage=sphLight
+	settingBtn = Button(VoiceModeFrame,image=sphimage,height=30,width=30, bg='#dfdfdf',borderwidth=0,activebackground="#dfdfdf",command=lambda: raise_frame(root2))
+	settingBtn.place(relx=1.0, y=30,x=-20, anchor="ne")	
+	
+	#Keyboard Button
+	kbphLight = PhotoImage(file = "extrafiles/images/keyboard.png")
+	kbphLight = kbphLight.subsample(2,2)
+	kbphDark = PhotoImage(file = "extrafiles/images/keyboard1.png")
+	kbphDark = kbphDark.subsample(2,2)
+	if KCS_IMG==1: kbphimage=kbphDark
+	else: kbphimage=kbphLight
+	kbBtn = Button(VoiceModeFrame,image=kbphimage,height=30,width=30, bg='#dfdfdf',borderwidth=0,activebackground="#dfdfdf", command=changeChatMode)
+	kbBtn.place(x=25, y=30)
+
+	#Mic
+	micImg = PhotoImage(file = "extrafiles/images/mic.png")
+	micImg = micImg.subsample(2,2)
+	micBtn = Button(TextModeFrame,image=micImg,height=30,width=30, bg='#dfdfdf',borderwidth=0,activebackground="#dfdfdf", command=changeChatMode)
+	micBtn.place(relx=1.0, y=30,x=-20, anchor="ne")	
+	
+	#Text Field
+	TextFieldImg = PhotoImage(file='extrafiles/images/textField.png')
+	UserFieldLBL = Label(TextModeFrame, fg='white', image=TextFieldImg, bg='#dfdfdf')
+	UserFieldLBL.pack(pady=17, side=LEFT, padx=10)
+	UserField = Entry(TextModeFrame, fg='white', bg='#203647', font=('Montserrat', 16), bd=6, width=22, relief=FLAT)
+	UserField.place(x=20, y=30)
+	UserField.insert(0, "Ask me anything...")
+	UserField.bind('<Return>', keyboardInput)
+	
+	#User and Bot Icon
+	userIcon = PhotoImage(file="extrafiles/images/avatars/ChatIcons/a"+str(ownerPhoto)+".png")
+	botIcon = PhotoImage(file="extrafiles/images/assistant2.png")
+	botIcon = botIcon.subsample(2,2)
+	
+
+	###########################
+	########  SETTINGS  #######
+	###########################
+
+	
+	settingsLbl = Label(root2, text='Settings', font=('Arial Bold', 15), bg=background, fg=textColor)
+	settingsLbl.pack(pady=10)
+	separator = ttk.Separator(root2, orient='horizontal')
+	separator.pack(fill=X)
+	#User Photo
+	userProfileImg = Image.open("extrafiles/images/avatars/a"+str(ownerPhoto)+".png")
+	userProfileImg = ImageTk.PhotoImage(userProfileImg.resize((120, 120)))
+	userPhoto = Button(root2, image=userProfileImg, bg=background, bd=0, relief=FLAT, activebackground=background, command=SelectAvatar)
+	userPhoto.pack(pady=(20, 5))
+
+	#Change Photo
+	chngPh = ImageTk.PhotoImage(Image.open("extrafiles/images/avatars/changephoto2.png").resize((120, 120)))
+	
+	userPhoto.bind('<Enter>', onhover)
+	userPhoto.bind('<Leave>', onleave)
+
+	#Username
+	userName = Label(root2, text=ownerName, font=('Arial Bold', 15), fg=textColor, bg=background)
+	userName.pack()
+
+	#Settings Frame
+	settingsFrame = Frame(root2, width=300, height=300, bg=background)
+	settingsFrame.pack(pady=20)
+
+	assLbl = Label(settingsFrame, text='Assistant Voice', font=('Arial', 13), fg=textColor, bg=background)
+	assLbl.place(x=0, y=20)
+	n = StringVar()
+	assVoiceOption = ttk.Combobox(settingsFrame, values=('Female', 'Male'), font=('Arial', 13), width=13, textvariable=n)
+	assVoiceOption.current(voice_id)
+	assVoiceOption.place(x=150, y=20)
+	assVoiceOption.bind('<<ComboboxSelected>>', changeVoice)
+
+	voiceRateLbl = Label(settingsFrame, text='Voice Rate', font=('Arial', 13), fg=textColor, bg=background)
+	voiceRateLbl.place(x=0, y=60)
+	n2 = StringVar()
+	voiceOption = ttk.Combobox(settingsFrame, font=('Arial', 13), width=13, textvariable=n2)
+	voiceOption['values'] = ('Very Low', 'Low', 'Normal', 'Fast', 'Very Fast')
+	voiceOption.current(ass_voiceRate//50-2) #100 150 200 250 300
+	voiceOption.place(x=150, y=60)
+	voiceOption.bind('<<ComboboxSelected>>', changeVoiceRate)
+	
+	volumeLbl = Label(settingsFrame, text='Volume', font=('Arial', 13), fg=textColor, bg=background)
+	volumeLbl.place(x=0, y=105)
+	volumeBar = Scale(settingsFrame, bg=background, fg=textColor, sliderlength=30, length=135, width=16, highlightbackground=background, orient='horizontal', from_=0, to=100, command=changeVolume)
+	volumeBar.set(int(ass_volume*100))
+	volumeBar.place(x=150, y=85)
+
+
+
+	themeLbl = Label(settingsFrame, text='Theme', font=('Arial', 13), fg=textColor, bg=background)
+	themeLbl.place(x=0,y=143)
+	themeValue = IntVar()
+	s = ttk.Style()
+	s.configure('Wild.TRadiobutton', font=('Arial Bold', 10), background=background, foreground=textColor, focuscolor=s.configure(".")["background"])
+	darkBtn = ttk.Radiobutton(settingsFrame, text='Dark', value=1, variable=themeValue, style='Wild.TRadiobutton', command=changeTheme, takefocus=False)
+	darkBtn.place(x=150,y=145)
+	lightBtn = ttk.Radiobutton(settingsFrame, text='Light', value=2, variable=themeValue, style='Wild.TRadiobutton', command=changeTheme, takefocus=False)
+	lightBtn.place(x=230,y=145)
+	themeValue.set(1)
+	if KCS_IMG==0: themeValue.set(2)
+
+
+	chooseChatLbl = Label(settingsFrame, text='Chat Background', font=('Arial', 13), fg=textColor, bg=background)
+	chooseChatLbl.place(x=0,y=180)
+	cimg = PhotoImage(file = "extrafiles/images/colorchooser.png")
+	cimg = cimg.subsample(3,3)
+	colorbar = Label(settingsFrame, bd=3, width=18, height=1, bg=chatBgColor)
+	colorbar.place(x=150, y=180)
+	if KCS_IMG==0: colorbar['bg'] = '#E8EBEF'
+	Button(settingsFrame, image=cimg, relief=FLAT, command=getChatColor).place(x=261, y=180)
+
+	backBtn = Button(settingsFrame, text='   Back   ', bd=0, font=('Arial 12'), fg='white', bg='#14A769', relief=FLAT, command=lambda:raise_frame(root1))
+	clearFaceBtn = Button(settingsFrame, text='   Clear Facial Data   ', bd=0, font=('Arial 12'), fg='white', bg='#14A769', relief=FLAT, command=deleteUserData)
+	backBtn.place(x=5, y=250)
+	clearFaceBtn.place(x=120, y=250)
+
+	try:
+		# pass
+		Thread(target=voiceMedium).start()
+	except:
+		pass
+	try:
+		# pass
+		Thread(target=webScrapping.dataUpdate).start()
+	except Exception as e:
+		print('System is Offline...')
+	
+	root.iconbitmap('extrafiles/images/assistant2.ico')
+	raise_frame(root1)
+	root.mainloop()
