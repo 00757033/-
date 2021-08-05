@@ -9,19 +9,14 @@ special 讀取成功但後面程式未改
 """
 Created on Tue Aug  3 10:12:14 2021
 
-@author: User
+@author: 翁培馨
 
-
-time_type1=""
-time_type2=""
-action=""
-data_type=""
-global end
-
-time_choose1=5
-time_choose2=5
-action_choose3=5
-data_choose=1
+tkinter圖 matplotlib.pyplot在运行的时候，是需要在主线程(Main Thread)上运行的，然而，我在使用多线程的时候，将使用matplotlib.pyplot的函数用在了子线程里面
+加這三行
+import matplotlib 
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt 
+https://www.codenong.com/cs105734243/
 """
 #此會在開chat就跑
 
@@ -29,7 +24,9 @@ try:
         import time
         import json
         import base64
-        import matplotlib.pylab as plt
+        import matplotlib 
+        matplotlib.use('Agg')
+        from matplotlib import pyplot as plt        
         from PIL import Image
         import cv2
         import os
@@ -69,28 +66,13 @@ def total_input():
         #print(total[dataset["time"][0:int(end)]]['toss'])
     file.close()
     text=''
-    global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
-    search=[]
-    search_name=[]
+    global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+    
+    
+   #####把input action 刪除 因方法不直覺且沒真正放進去(可在後面判別要不要加)  
+    '''
     def plus():
-        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
-
         
-        serve=[]
-        toss=[]
-        squat=[] 
-        situp=[]
-        stick=[]
-        
-        
-        time_choose1=0
-        time_choose2=0
-        time_type2=0
-        data_choose=1
-        end=4
-        file_name='timestamp.txt'
-        when_month=1
-        when_year=2021
 
         if str(entry_action.get()) not in search_name :
             if entry_action.get()=="toss":
@@ -118,28 +100,38 @@ def total_input():
                 search_name.append('stick')
                 print(search)
                 return search,search_name
-          
-        
-    window_action = tk.Tk()
-    window_action.title("record")
-    
-
-
-    window_action.geometry('500x500')
-    label_action = tk.Label(window_action, text = '動作')
+    label_action = tk.Label(root1, text = '動作')
     
     label_action.pack()  
     # 輸入欄位
-    entry_action = tk.Entry(window_action,     # 輸入欄位所在視窗
+    entry_action = tk.Entry(root1,     # 輸入欄位所在視窗
                      width = 20) # 輸入欄位的寬度
     entry_action.pack()
     # 按鈕
-    button = tk.Button(window_action, text = "加入", command = plus)
+    button = tk.Button(root1, text = "加入", command = plus)
     button.pack()
+        ''' 
+        
+    root1 = tk.Tk()
+    root1.title("record")
+    root1.geometry('500x500')
+    
     
     def update_date(i):
-        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+        global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
 
+        
+        
+        
+        
+        time_choose1=0
+        time_choose2=0
+        time_type2=0
+        data_choose=1
+        end=4
+        file_name='timestamp.txt'
+        when_month=1
+        when_year=2021
         print(i)
         if values[i]==0:
             
@@ -163,40 +155,40 @@ def total_input():
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
             
     def update_makeup(i):
-        global serve,toss,squat,situp,stick,search,search_name,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
+        global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year
 
         print('update_makeup',i)
         if values_makeup[i]==0:
             
             data_choose=1
-            file_name='timestamp.txt'
+            file_name='timestamp_file_no_makeup.txt'
             print('file_name',file_name)
             return file_name
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
         if values_makeup[i]==1:
             print("v_s5")
             data_choose=0
-            file_name='timestamp_file_no_makeup.txt'
+            file_name='timestamp.txt'
             #label_date.configure(text=f"You select '{texts[i]}' and value is {values[i]}")
           
             return file_name
     
     #print('file_name',file_name)
     texts_makeup = ['是', '否']
-    label_makeup = tk.Label(window_action,text='是否特定格式')
+    label_makeup = tk.Label(root1,text='是否要刪除沒運動的日子')
     label_makeup.pack()
     values_makeup = [0, 1]
     select_makeup = tk.IntVar()
     select_makeup.set(1)
     widget_makeup = [None]*len(texts_makeup)
     for i, (t, v) in enumerate(zip(texts_makeup, values_makeup)):
-        widget_makeup[i] = tk.Radiobutton(window_action,
+        widget_makeup[i] = tk.Radiobutton(root1,
             text=t, value=v, variable=select_makeup,
             command=lambda index=i: update_makeup(index))
         widget_makeup[i].pack()#side=tk.LEFT
 
     texts = ['年', '月', '日']
-    label_date = tk.Label(window_action,text='時間格式')
+    label_date = tk.Label(root1,text='時間格式')
     label_date.pack()
     values = [0, 1, 2]
     select = tk.IntVar()
@@ -204,17 +196,17 @@ def total_input():
     widget = [None]*len(texts)
     for i, (t, v) in enumerate(zip(texts, values)):
         if i==0:
-            widget[i] = tk.Radiobutton(window_action,
+            widget[i] = tk.Radiobutton(root1,
                 text=t, value=v, variable=select,
                 command=lambda index=i: [update_date(index),label_year_show(comboExample_year,label_year_Top),label_month_forget(comboExample,label_month_Top)])
         elif i==1:
-            widget[i] = tk.Radiobutton(window_action,
+            widget[i] = tk.Radiobutton(root1,
                     text=t, value=v, variable=select,
                     command=lambda index=i: [update_date(index),label_year_show(comboExample_year,label_month_Top),label_month_show(comboExample,label_month_Top)])
        
         
         elif i==2:
-            widget[i] = tk.Radiobutton(window_action,
+            widget[i] = tk.Radiobutton(root1,
                     text=t, value=v, variable=select,
                     command=lambda index=i: [update_date(index),label_year_forget(comboExample_year,label_year_Top),label_month_forget(comboExample,label_month_Top)])
         widget[i].pack()
@@ -225,11 +217,11 @@ def total_input():
     an_integer = int(a_string)
     #timeset=sorted(an_integer)
     timeset.insert(0,"無")
-    label_year_Top = ttk.Label(window_action,
+    label_year_Top = ttk.Label(root1,
                                 text = "選擇你想查詢的年份")
     label_year_Top.pack()
     
-    comboExample_year = ttk.Combobox(window_action, 
+    comboExample_year = ttk.Combobox(root1, 
                                 values=timeset)
     
     
@@ -241,11 +233,11 @@ def total_input():
         #print(comboExample.current(), comboExample.get())   
     
     
-    label_month_Top = ttk.Label(window_action,
+    label_month_Top = ttk.Label(root1,
                                     text = "Choose your  month")
     label_month_Top.pack()
     
-    comboExample = ttk.Combobox(window_action,
+    comboExample = ttk.Combobox(root1,
                                 values=['無','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'])
      
     comboExample.pack()
@@ -287,29 +279,35 @@ def total_input():
             time_choose2=1
             when_year=int(comboExample_year.get())
             when_month=int(comboExample.current())
-        #window_action.quit()  # 结束主循环
-        #window_action.destroy()  # 销毁窗口
+        #root1.quit()  # 结束主循环
+        #root1.destroy()  # 销毁窗口
     def _quit():
         """点击退出按钮时调用这个函数"""
-        window_action.quit()  # 结束主循环
-        #window_action.destroy()  # 销毁窗口
+        root1.quit()  # 结束主循环
+        root1.destroy()  # 销毁窗口
     
     # 创建一个按钮,并把上面那个函数绑定过来
-    #button0 = tk.Button(master=window_action, text="確定", , font=("Arial", 15), relief=FLAT, bg='#14A769', fg='white',command=[sure(),quit()])
-    button0=tk.Button(master=window_action, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white', command=lambda:[sure,_quit])
+    #button0 = tk.Button(master=root1, text="確定", , font=("Arial", 15), relief=FLAT, bg='#14A769', fg='white',command=[sure(),quit()])
+    button0=tk.Button(master=root1, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white', command=lambda:[sure,_quit])
            
 
     # 按钮放在下边
     button0.pack(side=tk.BOTTOM)
-    window_action.mainloop()
+    root1.mainloop()
     
-               
+    
+    
+    
+################################################draw plot#######################################################
+    search=[]
+    search_name=[]  
+    serve=[]
+    toss=[]
+    squat=[] 
+    situp=[]
+    stick=[]         
 
-     #tkinter
-    root2 = tk.Tk()  # 创建tkinter的主窗口
-    root2.title("在tkinter中使用matplotlib")
-    f = Figure(figsize=(5, 4), dpi=100)
-    a = f.add_subplot(111)  # 添加子图:1行1列第1个
+
     
     #print(end)
     timeset=set()
@@ -346,6 +344,7 @@ def total_input():
     time=[]
     time1=[]
     for i in total:
+        
         print(time_choose2," ",end," ",i," ",when_year)
         if time_choose2==1 and end==7:
             if i[0:4]==str(when_year):
@@ -381,7 +380,16 @@ def total_input():
             squat.append(total[i]['squat'])
             situp.append(total[i]['situp'])
             stick.append(total[i]['stick'])
-        
+    search.append(toss)
+    search.append(serve)
+    search.append(squat)
+    search.append(situp)
+    search.append(stick)
+    search_name.append('toss')
+    search_name.append('serve')
+    search_name.append('squat')
+    search_name.append('situp')
+    search_name.append('stick')
     width=0.15 
     print('len(search)',len(search))
     print('len(time)',len(time))
