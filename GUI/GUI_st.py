@@ -10,11 +10,11 @@ try:
         import json
         import base64
         import matplotlib 
-        from matplotlib import pyplot as plt        
+        from matplotlib import pyplot as plt   
+        import PIL.Image
         plt.switch_backend('agg') 
-        import nest_asyncio
-        nest_asyncio . apply ( )
-        from PIL import Image
+
+        from PIL import ImageTk, Image
         import cv2
         import os
         from tkinter import *
@@ -48,9 +48,9 @@ def total_init():
             widget_angle[3].pack_forget()
             widget_angle[4].pack_forget()
             button_angle.pack_forget()
-            label_makeup.pack()
-            widget_makeup[0].pack()#side=tk.LEFT
-            widget_makeup[1].pack()#side=tk.LEFT
+            #label_makeup.pack()
+            #widget_makeup[0].pack()#side=tk.LEFT
+            #widget_makeup[1].pack()#side=tk.LEFT
             
             label_date.pack()
             widget[0].pack()
@@ -70,10 +70,10 @@ def total_init():
             widget_angle[3].pack()
             widget_angle[4].pack()
             button_angle.pack(side=BOTTOM)
-            label_makeup.pack_forget()
+            #label_makeup.pack_forget()
             label_date.pack_forget()
-            widget_makeup[0].pack_forget()#side=tk.LEFT
-            widget_makeup[1].pack_forget()#side=tk.LEFT
+            #widget_makeup[0].pack_forget()#side=tk.LEFT
+            #widget_makeup[1].pack_forget()#side=tk.LEFT
             
             widget[0].pack_forget()
             widget[1].pack_forget()
@@ -90,12 +90,22 @@ def total_init():
             comboExample.pack_forget()
             
             button0.pack_forget()
-    self_train = Tk() #創 tk inter的視窗
-    self_train.title("SSA-自我訓練")
-    self_train.geometry('400x600') #設定視窗大小
-    self_train_system = ttk.Label(self_train, text = "選擇模式")
-    self_train_system.pack_forget() 
-    texts = ['自主練習次數判定', '自我訓練結果 ']
+    self_train = Toplevel() #創 tk inter的視窗
+    style_choose = ttk.Style()
+    style_choose.configure("BW.TLabel", background='#5F9EAD',foreground='Snow')
+    
+    self_train.title("SSA-Physical training")
+    self_train.geometry('600x1000') #設定視窗大小
+    #self_train.iconphoto(True, PhotoImage(file="ssa.png"))
+    img=PIL.Image.open("ssa.png")
+    img = img.resize((600, 200))
+    img=ImageTk.PhotoImage(img)
+    imLabel=Label(self_train,image=img)
+    imLabel.pack()
+    self_train_system = ttk.Label(self_train, text = "Choose the mode")
+    self_train_system.pack() 
+    self_train_system.configure(font=("Courier", 30, "italic"), style="BW.TLabel")
+    texts = ['Physical Training Judgment', 'Physical Training Results ']
     values = [0, 1]
     select = IntVar()
     select.set(1)
@@ -113,8 +123,14 @@ def total_init():
                 command=lambda index=i: total_input(0))
     
         widget[i].pack()
-    
-    global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year  
+        widget[i].configure(font=("Times", 20))
+    #分割線
+    s=ttk.Style()
+    s.configure('TSeparator',background='#FDF5E6')
+    b=ttk.Separator(self_train,orient='horizontal',
+                    style='TSeparator')
+    b.pack(fill=X)
+    global serve,toss,squat,situp,stick,time_choose1,time_choose2,time_type2,data_choose,end,file_name,when_month,when_year,goaltime,action
     timeset=set()
     total=dict()
     file = open("timestamp.txt", "r")
@@ -174,8 +190,8 @@ def total_init():
     texts_makeup = ['是', '否']
     label_makeup = Label(self_train,text='是否要刪除沒運動的日子')
     
-    label_makeup.pack() 
-    
+    #label_makeup.pack() 
+    label_makeup.configure(font=("Times", 18))
     values_makeup = [0, 1]
     select_makeup = IntVar()
     select_makeup.set(1)
@@ -184,14 +200,17 @@ def total_init():
         widget_makeup[i] = Radiobutton(self_train,
             text=t, value=v, variable=select_makeup,
             command=lambda index=i: update_makeup(index))
-        
-        widget_makeup[i].pack()#side=tk.LEFT
-        
-    texts = ['年', '月', '日']
-    label_date = Label(self_train,text='時間格式')
+        #if i==0:
+          #widget_makeup[i].grid(column=0, row=1, sticky='nwes')#side=tk.LEFT
+          #widget_makeup[i].configure(font=("Times", 18))
+        #else:
+          #widget_makeup[i].pack(side='right')#side=tk.LEFT
+          #widget_makeup[i].configure(font=("Times", 18))
+    texts = ['year', 'month', 'day']
+    label_date = Label(self_train,text='Time format')
     
     label_date.pack()
-    
+    label_date.configure(font=("Times", 18))
     values = [0, 1, 2]
     select = IntVar()
     select.set(0)
@@ -214,19 +233,18 @@ def total_init():
                     command=lambda index=i: [update_date(index),label_year_forget(comboExample_year,label_year_Top),label_month_forget(comboExample,label_month_Top)])
         
         widget[i].pack()
+        widget[i].configure(font=("Times", 18))        
         
-        
-    timeset=list(timeset)#sort 失敗
+    timeset=list(timeset)
     strings = [str(integer) for integer in timeset]
-    a_string = "".join(strings)
-    an_integer = int(a_string)
-    #timeset=sorted(an_integer)
-    timeset.insert(0,"無")
+    timeset=sorted(strings)
+    print(timeset)
+    timeset.insert(0,"no")
     label_year_Top = ttk.Label(self_train,
-                                text = "選擇你想查詢的年份")
+                                text = "Select the year you want to query")
     
     label_year_Top.pack()
-    
+    label_year_Top.configure(font=("Times", 20))    
     
     comboExample_year = ttk.Combobox(self_train, 
                                 values=timeset)
@@ -235,7 +253,7 @@ def total_init():
     #print(dict(comboExample)) 
     
     comboExample_year.pack()
-    
+    comboExample_year.configure(font=("Times", 18))
     comboExample_year.current(0)
     when_year=comboExample_year.get()
     print('when_year',when_year) 
@@ -243,15 +261,16 @@ def total_init():
     
     
     label_month_Top = ttk.Label(self_train,
-                                    text = "Choose your  month")
+                                    text = "Select the month you want to query")
     
-    label_month_Top.pack()
-    
+    label_month_Top.pack_forget()
+    label_month_Top.configure(font=("Times", 20))      
     
     comboExample = ttk.Combobox(self_train,
-                                values=['無','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'])
+                                values=['no','Jan','Feb','Mar','Apr','May','Jun','JUl','Aug','Sep','Oct','Nov','Dec'])
     
-    comboExample.pack()
+    comboExample.pack_forget()
+    comboExample.configure(font=("Times", 18))
     comboExample.current(0)
     when_month=int(comboExample.current())+1
     print('when_year',when_month)
@@ -301,7 +320,7 @@ def total_init():
         self_train.destroy()  # 销毁窗口
     
     # 创建一个按钮,并把上面那个函数绑定过来
-    button0=Button(master=self_train, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white',  command=lambda:[sure(),_quit(),record_volleyball.total_draw(file_name,end,time_choose2,when_year,when_month)])#, command=lambda:[sure,_quit]
+    button0=Button(master=self_train, text="  OK  ", font=("Arial", 20), bg='#14A769', fg='white',  command=lambda:[sure(),_quit(),record_volleyball.total_draw(file_name,end,time_choose2,when_year,when_month)])#, command=lambda:[sure,_quit]
            
     
     # 按钮放在下边
@@ -334,11 +353,12 @@ def total_init():
         self_train.destroy()  # 销毁窗口
     #################################################angle tkinter ###############################
     
-    texts_angle = ['托球', '發球', '深蹲','仰臥起坐','棒式']
+    texts_angle = ['toss', 'serve', 'squat','situp','plank']
     texts_angle_name = ['toss', 'serve', 'squat','situp','stick']
-    label_angle = Label(self_train,text='選擇測試動作')
+    label_angle = Label(self_train,text='choose action to test')
     
     label_angle.pack_forget()
+    label_angle.configure(font=("Times", 20))
     
     values_angle = [0, 1, 2,3,4]
     select_angle = IntVar()
@@ -366,27 +386,27 @@ def total_init():
                     text=t, value=v, variable=select_angle,command=lambda index=i:[show_time(time_label,time_entry),show_action(texts_angle_name[index])])
         
         widget_angle[i].pack_forget()
+        widget_angle[i].configure(font=("Times", 20))
     e=StringVar()
-    time_label=Label(self_train,text='請輸入時間(以秒為單位)')
+    time_label=Label(self_train,text='Please enter the time (in seconds)')
+    time_label.configure(font=("Times", 18))
     time_label.pack_forget()
-    time_entry=Entry(self_train,textvariable=e,bd=5)
+    time_entry=Entry(self_train,textvariable=e,bd=18)
     
     
     time_entry.pack_forget()
-    button_angle=Button(master=self_train, text="  OK 2 ", font=("Arial", 15), bg='#14A769', fg='white',  command=lambda:[_quit_angle(),angle.training(action,int(goaltime))])#
-    button_angle.pack_forget()
+    
     
     def show_time(time_label,time_entry):
-        
-        
+
         time_label.pack()
         time_entry.pack()
-        print(":)",goaltime)
     def hide_time(time_label,time_entry):
         global goaltime
         goaltime=0
         time_label.pack_forget()
         time_entry.pack_forget()
+        return goaltime
     def _quit_angle():
         global goaltime
         goaltime=time_entry.get()
@@ -394,10 +414,14 @@ def total_init():
         """点击退出按钮时调用这个函数"""
         self_train.quit()  # 结束主循环
         self_train.destroy()  # 销毁窗口
+        return goaltime
     def show_action(temp):
         print('temp',temp)
         global action
         action=temp
-    
+        return action
+
+    button_angle=Button(master=self_train, text="  OK  ", font=("Arial", 15), bg='#14A769', fg='white',  command=lambda:[_quit_angle(),angle.training(action,goaltime)])#
+    button_angle.pack_forget()
     if "idlelib" not in sys.modules:
       self_train.mainloop()
