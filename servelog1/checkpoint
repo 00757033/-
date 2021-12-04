@@ -1,2 +1,0 @@
-model_checkpoint_path: "serve_30_multiplayer.ckpt"
-all_model_checkpoint_paths: "serve_30_multiplayer.ckpt"
