@@ -45,11 +45,7 @@ def total_start():
     Thread(args=total_input()).start()
     
 def total_draw(file_name,end,time_choose2,when_year,when_month):
-    file_name=file_name
-    end=end
-    time_choose2=time_choose2
-    when_year=when_year
-    when_month=when_month
+
     #print("end",end)
 ################################################draw plot#######################################################
 ################################################draw data########################################################
